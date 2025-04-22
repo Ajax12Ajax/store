@@ -18,14 +18,14 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _widthAnimation;
   late Animation<Color?> _colorAnimation;
-
-  double widthTest = 51;
+  late Animation<double> _opacityAnimation;
+  late Animation<bool> _isVisibleAnimation;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 350),
       vsync: this,
     );
     _colorAnimation =
@@ -33,13 +33,25 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
             .animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.5, curve: Curves.ease),
+        curve: const Interval(0.0, 0.43, curve: Curves.ease),
       ),
     );
     _widthAnimation = Tween<double>(begin: 42, end: 280).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.5, 1.0, curve: Curves.ease),
+        curve: const Interval(0.43, 0.96, curve: Curves.ease),
+      ),
+    );
+    _isVisibleAnimation = Tween<bool>(begin: false, end: true).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Threshold(0.95),
+      ),
+    );
+    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.95, 1.0, curve: Curves.ease),
       ),
     );
   }
@@ -51,7 +63,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   }
 
   void _toggleAnimation() {
-    //widthTest = context.size?.width;
     if (_controller.status == AnimationStatus.completed) {
       _controller.reverse();
     } else if (_controller.status == AnimationStatus.dismissed) {
@@ -77,12 +88,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
             child: Padding(
                 padding: EdgeInsets.only(left: 13, right: 10),
                 child: Row(
-                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         CustomIconButton(
                           iconPath: 'assets/icons/account.svg',
@@ -105,84 +112,113 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                           },
                         ),
                         SizedBox(width: 8),
-                        Flexible(
-                          child: Stack(
-                            alignment: Alignment.centerRight,
-                            children: [
-                              Container(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Store",
-                                  style: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF000000),
-                                  ),
-                                ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              "Store",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xFF000000),
                               ),
-                              AnimatedBuilder(
-                                animation: _controller,
-                                builder: (context, child) {
-                                  return Container(
-                                    width: _widthAnimation.value,
-                                    height: 36,
-                                    decoration: BoxDecoration(
-                                      color: _colorAnimation.value,
-                                      borderRadius: BorderRadius.circular(13),
-                                    ),
-                                    alignment: Alignment.centerRight,
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        if (_controller.status ==
-                                            AnimationStatus.completed)
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(left: 16),
+                            ),
+                          ),
+                          AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, child) {
+                              return LayoutBuilder(
+                                  builder: (context, constraints) {
+                                _widthAnimation = Tween<double>(
+                                        begin: 42, end: constraints.maxWidth)
+                                    .animate(
+                                  CurvedAnimation(
+                                    parent: _controller,
+                                    curve: const Interval(0.5, 0.96,
+                                        curve: Curves.ease),
+                                  ),
+                                );
+                                return Container(
+                                  width: _widthAnimation.value,
+                                  height: 36,
+                                  decoration: BoxDecoration(
+                                    color: _colorAnimation.value,
+                                    borderRadius: BorderRadius.circular(13),
+                                  ),
+                                  alignment: Alignment.centerRight,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (_isVisibleAnimation.value)
+                                        Expanded(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(left: 13),
+                                            child: AnimatedOpacity(
+                                              opacity: _opacityAnimation.value,
+                                              duration:
+                                                  Duration(milliseconds: 150),
+                                              curve: Curves.easeInOut,
                                               child: TextField(
+                                                textAlign: TextAlign.start,
+                                                style: const TextStyle(
+                                                  fontFamily: 'Outfit',
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Color(0xFF000000),
+                                                ),
+                                                cursorColor:
+                                                    const Color(0xFF000000),
                                                 decoration: InputDecoration(
                                                   border: InputBorder.none,
                                                   hintText: 'Search...',
                                                   hintStyle: TextStyle(
                                                     fontFamily: 'Outfit',
                                                     color: Color(0xFF6B7280),
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    height: 1.6,
                                                   ),
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        CustomIconButton(
-                                          iconPath: 'assets/icons/search.svg',
-                                          iconWidth: 26,
-                                          iconHeight: 26,
-                                          maxWidth: 42,
-                                          maxHeight: 46,
-                                          onPressed: () {
-                                            _toggleAnimation();
-                                          },
                                         ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                                      CustomIconButton(
+                                        iconPath: 'assets/icons/search.svg',
+                                        iconWidth: 26,
+                                        iconHeight: 26,
+                                        maxWidth: 42,
+                                        maxHeight: 46,
+                                        onPressed: () {
+                                          _toggleAnimation();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              });
+                            },
                           ),
-                        ),
-                        CustomIconButton(
-                          iconPath: 'assets/icons/menu.svg',
-                          iconWidth: 25,
-                          iconHeight: 22,
-                          maxWidth: 39,
-                          maxHeight: 46,
-                          onPressed: () {
-                            // Handle back button press
-                          },
-                        ),
-                      ],
+                        ],
+                      ),
+                    ),
+                    CustomIconButton(
+                      iconPath: 'assets/icons/menu.svg',
+                      iconWidth: 25,
+                      iconHeight: 22,
+                      maxWidth: 39,
+                      maxHeight: 46,
+                      onPressed: () {
+                        // Handle back button press
+                      },
                     ),
                   ],
                 )),
