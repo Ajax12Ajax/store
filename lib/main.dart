@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'widget/customIconButton.dart';
 import 'widget/customTextButton.dart';
 
@@ -72,93 +73,122 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: const Color(0xFFFFFFFF),
-          flexibleSpace: Padding(
-              padding: EdgeInsets.only(left: 13, right: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CustomIconButton(
-                        iconPath: 'assets/icons/account.svg',
-                        iconWidth: 25,
-                        iconHeight: 28,
-                        maxWidth: 32,
-                        maxHeight: 46,
-                        onPressed: () {
-                          // Handle back button press
-                        },
-                      ),
-                      CustomIconButton(
-                        iconPath: 'assets/icons/map.svg',
-                        iconWidth: 26,
-                        iconHeight: 32,
-                        maxWidth: 37,
-                        maxHeight: 46,
-                        onPressed: () {
-                          // Handle back button press
-                        },
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        "Store",
-                        style: TextStyle(
-                          fontFamily: 'Outfit',
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF000000),
+          flexibleSpace: SafeArea(
+            child: Padding(
+                padding: EdgeInsets.only(left: 13, right: 10),
+                child: Row(
+                  //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        CustomIconButton(
+                          iconPath: 'assets/icons/account.svg',
+                          iconWidth: 25,
+                          iconHeight: 28,
+                          maxWidth: 32,
+                          maxHeight: 46,
+                          onPressed: () {
+                            // Handle back button press
+                          },
                         ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _controller,
-                        builder: (context, child) {
-                          return Container(
-                            width: _widthAnimation.value,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: _colorAnimation.value,
-                              borderRadius: BorderRadius.circular(13),
-                            ),
+                        CustomIconButton(
+                          iconPath: 'assets/icons/map.svg',
+                          iconWidth: 26,
+                          iconHeight: 32,
+                          maxWidth: 37,
+                          maxHeight: 46,
+                          onPressed: () {
+                            // Handle back button press
+                          },
+                        ),
+                        SizedBox(width: 8),
+                        Flexible(
+                          child: Stack(
                             alignment: Alignment.centerRight,
-                            child: CustomIconButton(
-                              iconPath: 'assets/icons/search.svg',
-                              iconWidth: 26,
-                              iconHeight: 26,
-                              maxWidth: 42,
-                              maxHeight: 46,
-                              onPressed: () {
-                                _toggleAnimation();
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                      CustomIconButton(
-                        iconPath: 'assets/icons/menu.svg',
-                        iconWidth: 25,
-                        iconHeight: 22,
-                        maxWidth: 39,
-                        maxHeight: 46,
-                        onPressed: () {
-                          // Handle back button press
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              )
+                            children: [
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Store",
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF000000),
+                                  ),
+                                ),
+                              ),
+                              AnimatedBuilder(
+                                animation: _controller,
+                                builder: (context, child) {
+                                  return Container(
+                                    width: _widthAnimation.value,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: _colorAnimation.value,
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        if (_controller.status ==
+                                            AnimationStatus.completed)
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(left: 16),
+                                              child: TextField(
+                                                decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText: 'Search...',
+                                                  hintStyle: TextStyle(
+                                                    fontFamily: 'Outfit',
+                                                    color: Color(0xFF6B7280),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        CustomIconButton(
+                                          iconPath: 'assets/icons/search.svg',
+                                          iconWidth: 26,
+                                          iconHeight: 26,
+                                          maxWidth: 42,
+                                          maxHeight: 46,
+                                          onPressed: () {
+                                            _toggleAnimation();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        CustomIconButton(
+                          iconPath: 'assets/icons/menu.svg',
+                          iconWidth: 25,
+                          iconHeight: 22,
+                          maxWidth: 39,
+                          maxHeight: 46,
+                          onPressed: () {
+                            // Handle back button press
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                )),
           ),
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1.0),
+            preferredSize: const Size.fromHeight(0.1),
             child: Container(
               color: const Color(0x4D000000),
               height: 1,
