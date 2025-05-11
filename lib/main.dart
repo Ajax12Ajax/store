@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:store/widget/cartElement.dart';
 import 'package:store/widget/displayThreeSpots.dart';
 import 'package:store/widget/displayTwoSpots.dart';
 import 'widget/customIconButton.dart';
@@ -714,354 +715,63 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      "assets/images/wat.jpg"),
-                                                  fit: BoxFit.cover,
-                                                  height: 56,
-                                                  width: 56,
-                                                ),
-                                              ),
-                                              SizedBox(width: 9),
-                                              Container(
-                                                height: 53,
-                                                padding: EdgeInsets.symmetric(vertical: 2),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .start,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            "Smart Watch",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  'Outfit',
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color: const Color(
-                                                                  0xFF000000),
-                                                              height: 1,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "Watched",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  'Outfit',
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              color: const Color(
-                                                                  0xFF6B7280),
-                                                              height: 1.1,
-                                                            ),
-                                                          ),
-                                                        ]),
-                                                    Text(
-                                                      "\$399.99",
-                                                      style: TextStyle(
-                                                        fontFamily: 'Outfit',
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: const Color(
-                                                            0xFF000000),
-                                                        height: 1,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ]),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              width: 63,
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                    BorderRadius.circular(1000),
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    CustomIconButton(
-                                                      iconPath:
-                                                          'assets/icons/remove.svg',
-                                                      iconWidth: 11.67,
-                                                      iconHeight: 1.67,
-                                                      maxWidth: 20,
-                                                      maxHeight: 20,
-                                                      onPressed: () {
-                                                        setState(() {});
-                                                        // Handle back button press
-                                                      },
-                                                    ),
-                                                    Text('2',
-                                                        style: TextStyle(
-                                                          fontFamily: 'Outfit',
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: const Color(
-                                                              0xFF000000),
-                                                          height: 1,
-                                                        )), //stawski to gej
-                                                    CustomIconButton(
-                                                      iconPath:
-                                                          'assets/icons/add.svg',
-                                                      iconWidth: 11.67,
-                                                      iconHeight: 11.67,
-                                                      maxWidth: 20,
-                                                      maxHeight: 20,
-                                                      onPressed: () {
-                                                        setState(() {});
-                                                        // Handle back button press
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 13),
-                                            CustomIconButton(
-                                              iconPath:
-                                                  'assets/icons/delete.svg',
-                                              iconWidth: 16,
-                                              iconHeight: 18,
-                                              maxWidth: 24,
-                                              maxHeight: 38,
-                                              onPressed: () {
-                                                setState(() {});
-                                                // Handle back button press
-                                              },
-                                            ),
-                                          ],
-                                        )
-                                      ]),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                height: 169,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      CartElement(
+                                        image: "assets/images/wat.jpg",
+                                        name: "Smart Watch",
+                                        brand: "Watched",
+                                        price: "\$399.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers 677GH",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers ",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                SizedBox(height: 10),
-                                GestureDetector(
-                                  onTap: () {},
-                                  child: Row(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Row(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                BorderRadius.circular(8),
-                                                child: Image(
-                                                  image: AssetImage(
-                                                      "assets/images/snk.jpg"),
-                                                  fit: BoxFit.cover,
-                                                  height: 56,
-                                                  width: 56,
-                                                ),
-                                              ),
-                                              SizedBox(width: 9),
-                                              Container(
-                                                height: 53,
-                                                padding: EdgeInsets.symmetric(vertical: 2),
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                                  children: [
-                                                    Column(
-                                                        mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .start,
-                                                        crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                        children: [
-                                                          Text(
-                                                            "Modern Sneakers",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                              'Outfit',
-                                                              fontSize: 14,
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .w600,
-                                                              color: const Color(
-                                                                  0xFF000000),
-                                                              height: 1,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            "Nike",
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                              'Outfit',
-                                                              fontSize: 12,
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .w400,
-                                                              color: const Color(
-                                                                  0xFF6B7280),
-                                                              height: 1.1,
-                                                            ),
-                                                          ),
-                                                        ]),
-                                                    Text(
-                                                      "\$699.99",
-                                                      style: TextStyle(
-                                                        fontFamily: 'Outfit',
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                        FontWeight.w600,
-                                                        color: const Color(
-                                                            0xFF000000),
-                                                        height: 1,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ]),
-                                        Row(
-                                          mainAxisAlignment:
-                                          MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                          children: [
-                                            Container(
-                                              width: 63,
-                                              height: 24,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius:
-                                                BorderRadius.circular(1000),
-                                              ),
-                                              child: Padding(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 1),
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    CustomIconButton(
-                                                      iconPath:
-                                                      'assets/icons/remove.svg',
-                                                      iconWidth: 11.67,
-                                                      iconHeight: 1.67,
-                                                      maxWidth: 20,
-                                                      maxHeight: 20,
-                                                      onPressed: () {
-                                                        setState(() {});
-                                                        // Handle back button press
-                                                      },
-                                                    ),
-                                                    Text('1',
-                                                        style: TextStyle(
-                                                          fontFamily: 'Outfit',
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                          FontWeight.w600,
-                                                          color: const Color(
-                                                              0xFF000000),
-                                                          height: 1,
-                                                        )), //stawski to gej
-                                                    CustomIconButton(
-                                                      iconPath:
-                                                      'assets/icons/add.svg',
-                                                      iconWidth: 11.67,
-                                                      iconHeight: 11.67,
-                                                      maxWidth: 20,
-                                                      maxHeight: 20,
-                                                      onPressed: () {
-                                                        setState(() {});
-                                                        // Handle back button press
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(width: 13),
-                                            CustomIconButton(
-                                              iconPath:
-                                              'assets/icons/delete.svg',
-                                              iconWidth: 16,
-                                              iconHeight: 18,
-                                              maxWidth: 24,
-                                              maxHeight: 38,
-                                              onPressed: () {
-                                                setState(() {});
-                                                // Handle back button press
-                                              },
-                                            ),
-                                          ],
-                                        )
-                                      ]),
-                                ),
-                              ],
-                            )
+                              ),
+                            ),
                           ]),
                       Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
+                            Text(
+                              "Total: \$454.65",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF000000),
+                                height: 1,
+                              ),
+                            ),
                             TextButton(
                               style: TextButton.styleFrom(
                                 foregroundColor: const Color(0xFF000000),
