@@ -1,0 +1,269 @@
+import 'package:flutter/material.dart';
+import 'package:store/widget/customIconButton.dart';
+import 'package:store/widget/displayTwoSpots.dart';
+
+class Product extends StatefulWidget {
+  final String itemID;
+
+  const Product({super.key, required this.itemID});
+
+  @override
+  State<Product> createState() => _ProductState();
+}
+
+class _ProductState extends State<Product> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: const Color(0xFFFFFFFF),
+        body: SingleChildScrollView(
+            child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Column(
+            children: [
+              Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text("Modern Sneakers",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 28,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF000000),
+                                height: 1,
+                              )),
+                          SizedBox(height: 11),
+                          Text("Nike",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 22,
+                                fontWeight: FontWeight.w400,
+                                color: const Color(0xFF6B7280),
+                                height: 1,
+                              )),
+                        ],
+                      ),
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomIconButton(
+                              iconPath: 'assets/icons/close.svg',
+                              iconWidth: 24,
+                              iconHeight: 24,
+                              maxWidth: 36,
+                              maxHeight: 59,
+                              onPressed: () {
+                                setState(() {
+                                  Navigator.pop(context);
+                                });
+                              },
+                            ),
+                            SizedBox(height: 15)
+                          ]),
+                    ],
+                  )),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AspectRatio(
+                    aspectRatio: 145 / 134,
+                    child: Image(
+                      image: AssetImage("assets/images/snk.jpg"),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(9),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: List.generate(
+                          5,
+                          (index) => Container(
+                                width: 8,
+                                height: 8,
+                                margin: EdgeInsets.symmetric(horizontal: 3.5),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: 0 == index
+                                      ? const Color(0x61000000)
+                                      : const Color(0x30000000),
+                                ),
+                              )),
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  LayoutBuilder(builder: (context, constraints) {
+                    return AspectRatio(
+                      aspectRatio: 369 / 71,
+                      child: Container(
+                        height: 71,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: const Color(0xFFF0EFEF),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text("\$129.99",
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF000000),
+                                    height: 1,
+                                  )),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: const Color(0xFF000000),
+                                  backgroundColor: const Color(0xFFB5B5B5),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                onPressed: () {},
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 7, vertical: 6),
+                                  child: Text('Add to cart',
+                                      style: TextStyle(
+                                        fontFamily: 'Outfit',
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF000000),
+                                        height: 1,
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                  SizedBox(height: 10),
+                  LayoutBuilder(builder: (context, constraints) {
+                    return AspectRatio(
+                        aspectRatio: 369 / 70,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  height: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0EFEF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(6),
+                                    child: Center(
+                                      child: Text(
+                                        "Size: 43",
+                                        style: TextStyle(
+                                          fontFamily: 'Outfit',
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF000000),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              flex: 1,
+                              child: GestureDetector(
+                                onTap: () {},
+                                child: Container(
+                                  height: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF0EFEF),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(6),
+                                    child: Center(
+                                      child: Text(
+                                        "Color: Green",
+                                        style: TextStyle(
+                                          fontFamily: 'Outfit',
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF000000),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ));
+                  }),
+                  SizedBox(height: 10),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 4),
+                    width: double.infinity,
+                    child: Text(
+                      "Material: Jeans\nFit: Standart\nSleeve: Long\nPattern: Slik\nLength: 56 cm\nWidth : 32 cm\nID: 435f2h",
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF000000),
+                        height: 1.27,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 1),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              "Similar",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF000000),
+                                height: 1.27,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          DisplayTwoSpots(),
+                        ],
+                      )),
+                  SizedBox(height: 25),
+                ],
+              )
+            ],
+          ),
+        )));
+  }
+}

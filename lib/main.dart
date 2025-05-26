@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:store/product.dart';
 import 'package:store/widget/cartElement.dart';
 import 'package:store/widget/displayThreeSpots.dart';
 import 'package:store/widget/displayTwoSpots.dart';
@@ -27,6 +27,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
+  bool _isFavOpen = false;
 
   double _opacity = 1.0;
 
@@ -93,6 +94,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: const Color(0xFFFFFFFF),
+          surfaceTintColor: Colors.transparent,
           flexibleSpace: SafeArea(
             child: Padding(
                 padding: EdgeInsets.only(left: 13, right: 10),
@@ -234,6 +236,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                             _opacity = 1.0;
                             _isMenuOpen = !_isMenuOpen;
                             _isCartOpen = false;
+                            _isFavOpen = false;
                           });
                         },
                         onTapCancel: () {
@@ -276,9 +279,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         ),
         floatingActionButton: AnimatedOpacity(
           duration: const Duration(milliseconds: 100),
-          opacity: _isMenuOpen || _isCartOpen ? 0.0 : 1.0,
+          opacity: _isMenuOpen || _isCartOpen || _isFavOpen ? 0.0 : 1.0,
           child: IgnorePointer(
-            ignoring: _isMenuOpen,
+            ignoring: _isMenuOpen || _isCartOpen || _isFavOpen,
             child: Container(
               width: 131,
               height: 58,
@@ -297,7 +300,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       maxWidth: 58,
                       maxHeight: 58,
                       onPressed: () {
-                        // Handle back button press
+                        setState(() {
+                          _isCartOpen = false;
+                          _isFavOpen = true;
+                          _isMenuOpen = false;
+                        });
                       },
                     ),
                     CustomIconButton(
@@ -309,9 +316,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       onPressed: () {
                         setState(() {
                           _isCartOpen = true;
+                          _isFavOpen = false;
                           _isMenuOpen = false;
                         });
-                        // Handle back button press
                       },
                     ),
                   ]),
@@ -319,181 +326,212 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           ),
         ),
         body: Stack(children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 13),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "For You",
-                                style: TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF000000),
-                                ),
-                              ),
-                              CustomTextButton(
-                                text: "See All",
-                                size: 14,
-                                weight: FontWeight.w400,
-                                fontColor: const Color(0xFF6B7280),
-                                maxWidth: 43,
-                                maxHeight: 16,
-                                onPressed: () {
-                                  // Handle back button press
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 14),
-                        DisplayThreeSpots()
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    child: LayoutBuilder(builder: (context, constraints) {
-                      return AspectRatio(
-                        aspectRatio: 1.79 / 1,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD1D1D1),
-                            borderRadius: BorderRadius.circular(12),
-                            gradient: LinearGradient(
-                              begin: Alignment(0.1, -1),
-                              end: Alignment(0.9, 1.3),
-                              stops: [0.1, 0.5, 0.9],
-                              colors: [
-                                const Color(0xCC232323),
-                                const Color(0xFFD1D1D1),
-                                const Color(0xCC232323),
-                              ],
-                            ),
-                          ),
-                          child: Stack(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.only(bottom: 42, right: 30),
-                                alignment: Alignment.topRight,
-                                child: Image(
-                                  image: AssetImage("assets/images/kosz.png"),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.only(left: 16, top: 15),
-                                child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text("Summer Sale",
+          MaterialApp(
+            debugShowCheckedModeBanner: false,
+            initialRoute: '/',
+            routes: {
+              '/': (context) => Scaffold(
+                    backgroundColor: const Color(0xFFFFFFFF),
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 13),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "For You",
                                           style: TextStyle(
                                             fontFamily: 'Outfit',
-                                            fontSize: 24,
+                                            fontSize: 18,
                                             fontWeight: FontWeight.w800,
-                                            color: const Color(0xFFFFFFFF),
-                                            height: 1,
-                                          )),
-                                      SizedBox(height: 12),
-                                      Text("Up to 50% off",
-                                          style: TextStyle(
-                                            fontFamily: 'Outfit',
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: const Color(0xFFFFFFFF),
-                                            height: 1,
-                                          )),
-                                    ]),
-                              ),
-                              Container(
-                                alignment: Alignment.bottomRight,
-                                padding: EdgeInsets.only(bottom: 18, right: 28),
-                                child: TextButton(
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: const Color(0xFF000000),
-                                    backgroundColor: const Color(0xFFFFFFFF),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                            color: const Color(0xFF000000),
+                                          ),
+                                        ),
+                                        CustomTextButton(
+                                          text: "See All",
+                                          size: 14,
+                                          weight: FontWeight.w400,
+                                          fontColor: const Color(0xFF6B7280),
+                                          maxWidth: 43,
+                                          maxHeight: 16,
+                                          onPressed: () {
+                                            // Handle back button press
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  onPressed: () {},
-                                  child: Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 8),
-                                    child: Text('More Info',
-                                        style: TextStyle(
-                                          fontFamily: 'Outfit',
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFF000000),
-                                          height: 1,
-                                        )),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "New Arrivals",
-                                style: TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF000000),
-                                ),
+                                  SizedBox(height: 14),
+                                  DisplayThreeSpots()
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                return AspectRatio(
+                                  aspectRatio: 1.79 / 1,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFD1D1D1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      gradient: LinearGradient(
+                                        begin: Alignment(0.1, -1),
+                                        end: Alignment(0.9, 1.3),
+                                        stops: [0.1, 0.5, 0.9],
+                                        colors: [
+                                          const Color(0xCC232323),
+                                          const Color(0xFFD1D1D1),
+                                          const Color(0xCC232323),
+                                        ],
+                                      ),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              bottom: 42, right: 30),
+                                          alignment: Alignment.topRight,
+                                          child: Image(
+                                            image: AssetImage(
+                                                "assets/images/kosz.png"),
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              left: 16, top: 15),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Text("Summer Sale",
+                                                    style: TextStyle(
+                                                      fontFamily: 'Outfit',
+                                                      fontSize: 24,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      color: const Color(
+                                                          0xFFFFFFFF),
+                                                      height: 1,
+                                                    )),
+                                                SizedBox(height: 12),
+                                                Text("Up to 50% off",
+                                                    style: TextStyle(
+                                                      fontFamily: 'Outfit',
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.w400,
+                                                      color: const Color(
+                                                          0xFFFFFFFF),
+                                                      height: 1,
+                                                    )),
+                                              ]),
+                                        ),
+                                        Container(
+                                          alignment: Alignment.bottomRight,
+                                          padding: EdgeInsets.only(
+                                              bottom: 18, right: 28),
+                                          child: TextButton(
+                                            style: TextButton.styleFrom(
+                                              foregroundColor:
+                                                  const Color(0xFF000000),
+                                              backgroundColor:
+                                                  const Color(0xFFFFFFFF),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                              ),
+                                            ),
+                                            onPressed: () {},
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 8),
+                                              child: Text('More Info',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Outfit',
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                    color:
+                                                        const Color(0xFF000000),
+                                                    height: 1,
+                                                  )),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 13),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          "New Arrivals",
+                                          style: TextStyle(
+                                            fontFamily: 'Outfit',
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w800,
+                                            color: const Color(0xFF000000),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: 14),
+                                  DisplayTwoSpots(),
+                                  SizedBox(height: 11),
+                                  DisplayTwoSpots(),
+                                  SizedBox(height: 11),
+                                  DisplayThreeSpots(),
+                                  SizedBox(height: 11),
+                                  DisplayTwoSpots(),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 14),
-                        DisplayTwoSpots(),
-                        SizedBox(height: 11),
-                        DisplayTwoSpots(),
-                        SizedBox(height: 11),
-                        DisplayThreeSpots(),
-                        SizedBox(height: 11),
-                        DisplayTwoSpots(),
-                      ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
+              '/product': (context) => const Product(itemID: "345435gg"),
+            },
           ),
           Visibility(
-            visible: _isMenuOpen || _isCartOpen,
+            visible: _isMenuOpen || _isCartOpen || _isFavOpen,
             child: GestureDetector(
               onTap: () {
                 setState(() {
                   _isMenuOpen = false;
                   _isCartOpen = false;
+                  _isFavOpen = false;
                 });
               },
               child: Container(
@@ -734,20 +772,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                       SizedBox(height: 10),
                                       CartElement(
                                         image: "assets/images/snk.jpg",
-                                        name: "Modern Sneakers 677GH",
-                                        brand: "Nike",
-                                        price: "\$699.99",
-                                      ),
-                                      SizedBox(height: 10),
-                                      CartElement(
-                                        image: "assets/images/snk.jpg",
-                                        name: "Modern Sneakers ",
-                                        brand: "Nike",
-                                        price: "\$699.99",
-                                      ),
-                                      SizedBox(height: 10),
-                                      CartElement(
-                                        image: "assets/images/snk.jpg",
                                         name: "Modern Sneakers",
                                         brand: "Nike",
                                         price: "\$699.99",
@@ -784,6 +808,170 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: 8),
                                 child: Text('Checkout',
+                                    style: TextStyle(
+                                      fontFamily: 'Outfit',
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF000000),
+                                      height: 1,
+                                    )),
+                              ),
+                            ),
+                          ]),
+                    ],
+                  )),
+            ),
+          ),
+          AnimatedPositioned(
+            bottom: _isFavOpen ? 0 : -329,
+            left: 0,
+            right: 0,
+            height: 329,
+            curve: Curves.easeInOut,
+            duration: const Duration(milliseconds: 350),
+            child: Container(
+              alignment: Alignment.topLeft,
+              margin: const EdgeInsets.only(right: 8, left: 8, bottom: 21),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Padding(
+                  padding:
+                      EdgeInsets.only(left: 16, top: 7, bottom: 15, right: 15),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Favorites",
+                                    style: TextStyle(
+                                      fontFamily: 'Outfit',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      color: const Color(0xFF000000),
+                                      height: 1,
+                                    ),
+                                  ),
+                                  Builder(
+                                    builder: (context) => GestureDetector(
+                                      onTapDown: (_) {
+                                        setState(() {
+                                          _opacity = 0.5;
+                                        });
+                                      },
+                                      onTapUp: (_) {
+                                        setState(() {
+                                          _opacity = 1.0;
+                                          setState(() {
+                                            _isFavOpen = !_isFavOpen;
+                                          });
+                                        });
+                                      },
+                                      onTapCancel: () {
+                                        setState(() {
+                                          _opacity = 1.0;
+                                        });
+                                      },
+                                      child: AnimatedOpacity(
+                                        opacity: _opacity,
+                                        duration: Duration(milliseconds: 150),
+                                        curve: Curves.easeInOut,
+                                        child: Container(
+                                          color: Colors.transparent,
+                                          width: 40,
+                                          height: 46,
+                                          child: Center(
+                                            child: SvgPicture.asset(
+                                              'assets/icons/close.svg',
+                                              width: 24,
+                                              height: 24,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ]),
+                            Padding(
+                              padding: EdgeInsets.only(bottom: 19),
+                              child: PreferredSize(
+                                preferredSize: const Size.fromHeight(0.1),
+                                child: Container(
+                                  color: const Color(0xFF939393),
+                                  height: 1,
+                                  margin: EdgeInsets.only(right: 150),
+                                ),
+                              ),
+                            ),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                height: 169,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      CartElement(
+                                        image: "assets/images/wat.jpg",
+                                        name: "Smart Watch",
+                                        brand: "Watched",
+                                        price: "\$399.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers 677GH",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers ",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                      SizedBox(height: 10),
+                                      CartElement(
+                                        image: "assets/images/snk.jpg",
+                                        name: "Modern Sneakers",
+                                        brand: "Nike",
+                                        price: "\$699.99",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFF000000),
+                                backgroundColor: const Color(0xFFA6A6A6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(11),
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text('Add to cart',
                                     style: TextStyle(
                                       fontFamily: 'Outfit',
                                       fontSize: 18,

@@ -20,7 +20,9 @@ class DisplayThreeSpotsState extends State<DisplayThreeSpots> {
               Expanded(
                 flex: 157,
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, '/product');
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAFB),
