@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:store/models/item.dart';
+import 'package:store/services/item_service.dart';
 import 'package:store/widgets/customIconButton.dart';
+import 'package:store/widgets/displayTwoSpots.dart';
 
 class Product extends StatefulWidget {
   final Item? item;
@@ -12,6 +14,24 @@ class Product extends StatefulWidget {
 }
 
 class _ProductState extends State<Product> {
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  List<Item> _items = [];
+  bool _isLoading = true;
+
+  Future<void> _loadItems() async {
+    setState(() => _isLoading = true);
+    final items = await ItemService.loadItems();
+    setState(() {
+      _items = items;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -255,7 +275,9 @@ class _ProductState extends State<Product> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          //DisplayTwoSpots(),
+                          _isLoading
+                              ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
+                              : DisplayTwoSpots(items: _items.sublist(0, 2)),
                         ],
                       )),
                   SizedBox(height: 25),

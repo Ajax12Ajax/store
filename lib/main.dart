@@ -1,8 +1,14 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:store/catalog.dart';
 import 'package:store/product.dart';
+import 'package:store/services/item_service.dart';
 import 'package:store/widgets/cartElement.dart';
+import 'package:store/widgets/displayThreeSpots.dart';
+import 'package:store/widgets/displayTwoSpots.dart';
 
+import 'models/item.dart';
 import 'widgets/customIconButton.dart';
 import 'widgets/customTextButton.dart';
 
@@ -34,6 +40,26 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _animationController();
+    _loadItems();
+  }
+
+  List<Item> _items = [];
+  int _firstItems = 0;
+  bool _isLoading = true;
+
+  Future<void> _loadItems() async {
+    setState(() => _isLoading = true);
+    final items = await ItemService.loadItems();
+    setState(() {
+      _items = items;
+      while (_items[_firstItems].name.length >= 20 ||
+          _items[_firstItems + 1].name.length >= 19 ||
+          _items[_firstItems + 2].name.length >= 19) {
+        _firstItems = Random().nextInt((_items.length - 3).clamp(0, 16));
+        print(_firstItems);
+      }
+      _isLoading = false;
+    });
   }
 
   void _animationController() {
@@ -397,7 +423,11 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: 14),
-                                  //DisplayThreeSpots()
+                                  _isLoading
+                                      ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
+                                      : DisplayThreeSpots(
+                                          items: _items.sublist(_firstItems, _firstItems + 3),
+                                        )
                                 ],
                               ),
                             ),
@@ -509,14 +539,18 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                       ],
                                     ),
                                   ),
-                                  SizedBox(height: 14),
-                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
-                                  SizedBox(height: 11),
-                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
-                                  SizedBox(height: 11),
-                                  //DisplayThreeSpots(),
-                                  SizedBox(height: 11),
-                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
+                                  _isLoading
+                                      ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
+                                      : Column(children: [
+                                          SizedBox(height: 14),
+                                          DisplayTwoSpots(items: _items.sublist(0, 2)),
+                                          SizedBox(height: 11),
+                                          DisplayTwoSpots(items: _items.sublist(2, 4)),
+                                          SizedBox(height: 11),
+                                          DisplayThreeSpots(items: _items.sublist(15, 18)),
+                                          SizedBox(height: 11),
+                                          DisplayTwoSpots(items: _items.sublist(7, 9)),
+                                        ]),
                                 ],
                               ),
                             ),
@@ -525,7 +559,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
-              '/product': (context) => const Product(),
+              '/product': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+                return Product(item: args['item']);
+              },
               '/catalog': (context) => Catalog(key: Catalog.catalogKey),
             },
           ),

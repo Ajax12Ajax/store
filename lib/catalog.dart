@@ -124,7 +124,7 @@ class CatalogState extends State<Catalog> {
             ),
             Expanded(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
                   : SingleChildScrollView(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 13),
