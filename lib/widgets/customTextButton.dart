@@ -33,12 +33,12 @@ class CustomTextButtonState extends State<CustomTextButton> {
       onTapDown: (_) {
         setState(() {
           _opacity = 0.5;
-          widget.onPressed();
         });
       },
       onTapUp: (_) {
         setState(() {
           _opacity = 1.0;
+          widget.onPressed();
         });
       },
       onTapCancel: () {

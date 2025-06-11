@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:store/widget/customIconButton.dart';
-import 'package:store/widget/displayTwoSpots.dart';
+import 'package:store/models/item.dart';
+import 'package:store/widgets/customIconButton.dart';
 
 class Product extends StatefulWidget {
-  final String itemID;
+  final Item? item;
 
-  const Product({super.key, required this.itemID});
+  const Product({super.key, this.item});
 
   @override
   State<Product> createState() => _ProductState();
@@ -31,7 +31,7 @@ class _ProductState extends State<Product> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Text("Modern Sneakers",
+                          Text(widget.item!.name,
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 28,
@@ -40,7 +40,7 @@ class _ProductState extends State<Product> {
                                 height: 1,
                               )),
                           SizedBox(height: 11),
-                          Text("Nike",
+                          Text(widget.item!.brand,
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 22,
@@ -77,7 +77,7 @@ class _ProductState extends State<Product> {
                   AspectRatio(
                     aspectRatio: 145 / 134,
                     child: Image(
-                      image: AssetImage("assets/images/snk.jpg"),
+                      image: AssetImage(widget.item!.image),
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -120,7 +120,7 @@ class _ProductState extends State<Product> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("\$129.99",
+                              Text("\$${widget.item?.price}",
                                   style: TextStyle(
                                     fontFamily: 'Outfit',
                                     fontSize: 32,
@@ -138,8 +138,7 @@ class _ProductState extends State<Product> {
                                 ),
                                 onPressed: () {},
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 7, vertical: 6),
+                                  padding: EdgeInsets.symmetric(horizontal: 7, vertical: 6),
                                   child: Text('Add to cart',
                                       style: TextStyle(
                                         fontFamily: 'Outfit',
@@ -206,7 +205,7 @@ class _ProductState extends State<Product> {
                                     padding: EdgeInsets.all(6),
                                     child: Center(
                                       child: Text(
-                                        "Color: Green",
+                                        "Color: ${widget.item!.color}",
                                         style: TextStyle(
                                           fontFamily: 'Outfit',
                                           fontSize: 22,
@@ -227,7 +226,7 @@ class _ProductState extends State<Product> {
                     padding: EdgeInsets.symmetric(horizontal: 4),
                     width: double.infinity,
                     child: Text(
-                      "Material: Jeans\nFit: Standart\nSleeve: Long\nPattern: Slik\nLength: 56 cm\nWidth : 32 cm\nID: 435f2h",
+                      "Material: ${widget.item!.materials}\nFit: ${widget.item!.fit}\nSleeve: Long\nPattern: Slik\nLength: ${widget.item!.dimensions.length} cm\nWidth : ${widget.item!.dimensions.width} cm\nID: ${widget.item!.id}",
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 22,
@@ -256,7 +255,7 @@ class _ProductState extends State<Product> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          DisplayTwoSpots(),
+                          //DisplayTwoSpots(),
                         ],
                       )),
                   SizedBox(height: 25),

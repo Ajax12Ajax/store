@@ -76,6 +76,8 @@ flutter:
     - assets/icons/
     - assets/images/
     - assets/images/kosz.png
+    - assets/images/items/
+    - assets/items.json
 
   # To add assets to your application, add an assets section, like this:
   # To add assets to your application, add an assets section, like this:

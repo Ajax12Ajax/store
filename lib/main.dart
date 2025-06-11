@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:store/catalog.dart';
 import 'package:store/product.dart';
-import 'package:store/widget/cartElement.dart';
-import 'package:store/widget/displayThreeSpots.dart';
-import 'package:store/widget/displayTwoSpots.dart';
-import 'widget/customIconButton.dart';
-import 'widget/customTextButton.dart';
+import 'package:store/widgets/cartElement.dart';
+
+import 'widgets/customIconButton.dart';
+import 'widgets/customTextButton.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,6 +18,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   late AnimationController _controller;
   late Animation<double> _widthAnimation;
   late Animation<Color?> _colorAnimation;
@@ -29,18 +30,19 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   bool _isCartOpen = false;
   bool _isFavOpen = false;
 
-  double _opacity = 1.0;
-
   @override
   void initState() {
     super.initState();
+    _animationController();
+  }
+
+  void _animationController() {
     _controller = AnimationController(
       duration: const Duration(milliseconds: 350),
       vsync: this,
     );
     _colorAnimation =
-        ColorTween(begin: const Color(0x00ffffff), end: const Color(0xFFD9D9D9))
-            .animate(
+        ColorTween(begin: const Color(0x00ffffff), end: const Color(0xFFD9D9D9)).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.0, 0.43, curve: Curves.ease),
@@ -72,19 +74,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  void _toggleAnimation() {
-    if (_controller.status == AnimationStatus.completed) {
-      _controller.reverse();
-    } else if (_controller.status == AnimationStatus.dismissed) {
-      _controller.forward();
-    } else {
-      _controller.stop();
-      _controller.status == AnimationStatus.forward
-          ? _controller.reverse()
-          : _controller.forward();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -96,177 +85,213 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
           backgroundColor: const Color(0xFFFFFFFF),
           surfaceTintColor: Colors.transparent,
           flexibleSpace: SafeArea(
-            child: Padding(
-                padding: EdgeInsets.only(left: 13, right: 10),
-                child: Row(
-                  children: [
-                    Row(
-                      children: [
-                        CustomIconButton(
-                          iconPath: 'assets/icons/account.svg',
-                          iconWidth: 25,
-                          iconHeight: 28,
-                          maxWidth: 32,
-                          maxHeight: 46,
-                          onPressed: () {
-                            // Handle back button press
-                          },
-                        ),
-                        CustomIconButton(
-                          iconPath: 'assets/icons/map.svg',
-                          iconWidth: 26,
-                          iconHeight: 32,
-                          maxWidth: 37,
-                          maxHeight: 46,
-                          onPressed: () {
-                            // Handle back button press
-                          },
-                        ),
-                        SizedBox(width: 8),
-                      ],
-                    ),
-                    Expanded(
-                      child: Stack(
-                        alignment: Alignment.centerRight,
+            child: Stack(children: [
+              Padding(
+                  padding: EdgeInsets.only(left: 13, right: 10),
+                  child: Row(
+                    children: [
+                      Row(
                         children: [
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Store",
-                              style: TextStyle(
-                                fontFamily: 'Outfit',
-                                fontSize: 20,
-                                fontWeight: FontWeight.w800,
-                                color: const Color(0xFF000000),
+                          CustomIconButton(
+                            iconPath: 'assets/icons/account.svg',
+                            iconWidth: 25,
+                            iconHeight: 28,
+                            maxWidth: 32,
+                            maxHeight: 46,
+                            onPressed: () {
+                              // Handle back button press
+                            },
+                          ),
+                          CustomIconButton(
+                            iconPath: 'assets/icons/map.svg',
+                            iconWidth: 26,
+                            iconHeight: 32,
+                            maxWidth: 37,
+                            maxHeight: 46,
+                            onPressed: () {
+                              // Handle back button press
+                            },
+                          ),
+                          SizedBox(width: 8),
+                        ],
+                      ),
+                      Expanded(
+                        child: Stack(
+                          alignment: Alignment.centerRight,
+                          children: [
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              child: GestureDetector(
+                                onTapDown: (_) {},
+                                onTapUp: (_) {
+                                  setState(() {
+                                    _isMenuOpen = false;
+                                    if (navigatorKey.currentState?.canPop() ?? false) {
+                                      navigatorKey.currentState
+                                          ?.pushNamedAndRemoveUntil('/', (route) => false);
+                                    }
+                                  });
+                                },
+                                onTapCancel: () {},
+                                child: Text(
+                                  "Store",
+                                  style: TextStyle(
+                                    fontFamily: 'Outfit',
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                    color: const Color(0xFF000000),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          AnimatedBuilder(
-                            animation: _controller,
-                            builder: (context, child) {
-                              return LayoutBuilder(
-                                  builder: (context, constraints) {
-                                _widthAnimation = Tween<double>(
-                                        begin: 42, end: constraints.maxWidth)
-                                    .animate(
-                                  CurvedAnimation(
-                                    parent: _controller,
-                                    curve: const Interval(0.5, 0.96,
-                                        curve: Curves.ease),
-                                  ),
-                                );
-                                return Container(
-                                  width: _widthAnimation.value,
-                                  height: 36,
-                                  decoration: BoxDecoration(
-                                    color: _colorAnimation.value,
-                                    borderRadius: BorderRadius.circular(13),
-                                  ),
-                                  alignment: Alignment.centerRight,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      if (_isVisibleAnimation.value)
-                                        Expanded(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(left: 13),
-                                            child: AnimatedOpacity(
-                                              opacity: _opacityAnimation.value,
-                                              duration:
-                                                  Duration(milliseconds: 150),
-                                              curve: Curves.easeInOut,
-                                              child: TextField(
-                                                textAlign: TextAlign.start,
-                                                style: const TextStyle(
-                                                  fontFamily: 'Outfit',
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Color(0xFF000000),
-                                                ),
-                                                cursorColor:
-                                                    const Color(0xFF000000),
-                                                decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                  hintText: 'Search...',
-                                                  hintStyle: TextStyle(
+                            AnimatedBuilder(
+                              animation: _controller,
+                              builder: (context, child) {
+                                return LayoutBuilder(builder: (context, constraints) {
+                                  _widthAnimation =
+                                      Tween<double>(begin: 42, end: constraints.maxWidth).animate(
+                                    CurvedAnimation(
+                                      parent: _controller,
+                                      curve: const Interval(0.5, 0.96, curve: Curves.ease),
+                                    ),
+                                  );
+                                  return Container(
+                                    width: _widthAnimation.value,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: _colorAnimation.value,
+                                      borderRadius: BorderRadius.circular(13),
+                                    ),
+                                    alignment: Alignment.centerRight,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        if (_isVisibleAnimation.value)
+                                          Expanded(
+                                            child: Padding(
+                                              padding: EdgeInsets.only(left: 13),
+                                              child: AnimatedOpacity(
+                                                opacity: _opacityAnimation.value,
+                                                duration: Duration(milliseconds: 150),
+                                                curve: Curves.easeInOut,
+                                                child: TextField(
+                                                  textAlign: TextAlign.start,
+                                                  style: const TextStyle(
                                                     fontFamily: 'Outfit',
-                                                    color: Color(0xFF6B7280),
                                                     fontSize: 16,
                                                     fontWeight: FontWeight.w500,
-                                                    height: 1.6,
+                                                    color: Color(0xFF000000),
                                                   ),
+                                                  cursorColor: const Color(0xFF000000),
+                                                  decoration: InputDecoration(
+                                                    border: InputBorder.none,
+                                                    hintText: 'Search...',
+                                                    hintStyle: TextStyle(
+                                                      fontFamily: 'Outfit',
+                                                      color: Color(0xFF6B7280),
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                      height: 1.6,
+                                                    ),
+                                                  ),
+                                                  onSubmitted: (value) {
+                                                    setState(() {
+                                                      navigatorKey.currentState?.popUntil((route) {
+                                                        if (route.settings.name != '/catalog') {
+                                                          CatalogState.selectedCategory = null;
+                                                          CatalogState.searchQuery = value;
+                                                          navigatorKey.currentState
+                                                              ?.pushNamed('/catalog');
+                                                        } else {
+                                                          Catalog.catalogKey.currentState
+                                                              ?.filterItems(value, null);
+                                                        }
+                                                        return true;
+                                                      });
+                                                    });
+                                                  },
                                                 ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                      CustomIconButton(
-                                        iconPath: 'assets/icons/search.svg',
-                                        iconWidth: 26,
-                                        iconHeight: 26,
-                                        maxWidth: 42,
-                                        maxHeight: 46,
-                                        onPressed: () {
-                                          setState(() {
-                                            _isMenuOpen = false;
-                                          });
-                                          _toggleAnimation();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Builder(
-                      builder: (context) => GestureDetector(
-                        onTapDown: (_) {
-                          setState(() {
-                            _opacity = 0.5;
-                          });
-                        },
-                        onTapUp: (_) {
-                          setState(() {
-                            _opacity = 1.0;
-                            _isMenuOpen = !_isMenuOpen;
-                            _isCartOpen = false;
-                            _isFavOpen = false;
-                          });
-                        },
-                        onTapCancel: () {
-                          setState(() {
-                            _opacity = 1.0;
-                          });
-                        },
-                        child: AnimatedOpacity(
-                          opacity: _opacity,
-                          duration: Duration(milliseconds: 150),
-                          curve: Curves.easeInOut,
-                          child: Container(
-                            color: Colors.transparent,
-                            width: 39,
-                            height: 46,
-                            child: Center(
-                              child: SvgPicture.asset(
-                                _isMenuOpen
-                                    ? 'assets/icons/close.svg'
-                                    : 'assets/icons/menu.svg',
-                                width: _isMenuOpen ? 24 : 25,
-                                height: _isMenuOpen ? 24 : 22,
-                              ),
+                                        CustomIconButton(
+                                            iconPath:
+                                                _controller.status == AnimationStatus.completed
+                                                    ? 'assets/icons/close.svg'
+                                                    : 'assets/icons/search.svg',
+                                            iconWidth:
+                                                _controller.status == AnimationStatus.completed
+                                                    ? 22
+                                                    : 26,
+                                            iconHeight:
+                                                _controller.status == AnimationStatus.completed
+                                                    ? 22
+                                                    : 26,
+                                            maxWidth: 42,
+                                            maxHeight: 46,
+                                            onPressed: () {
+                                              setState(() {
+                                                _isMenuOpen = false;
+                                                _isCartOpen = false;
+                                                _isFavOpen = false;
+                                              });
+                                              if (_controller.status == AnimationStatus.completed) {
+                                                _controller.reverse();
+                                              } else if (_controller.status ==
+                                                  AnimationStatus.dismissed) {
+                                                _controller.forward();
+                                              } else {
+                                                _controller.stop();
+                                                _controller.status == AnimationStatus.forward
+                                                    ? _controller.reverse()
+                                                    : _controller.forward();
+                                              }
+                                            }),
+                                      ],
+                                    ),
+                                  );
+                                });
+                              },
                             ),
-                          ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                )),
+                      CustomIconButton(
+                          iconPath:
+                              _isMenuOpen ? 'assets/icons/close.svg' : 'assets/icons/menu.svg',
+                          iconWidth: _isMenuOpen ? 24 : 25,
+                          iconHeight: _isMenuOpen ? 24 : 22,
+                          maxWidth: 39,
+                          maxHeight: 46,
+                          onPressed: () {
+                            setState(() {
+                              _isMenuOpen = !_isMenuOpen;
+                              _isCartOpen = false;
+                              _isFavOpen = false;
+                              _controller.stop();
+                              _controller.reverse();
+                            });
+                          })
+                    ],
+                  )),
+              Visibility(
+                visible: _isCartOpen || _isFavOpen,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isCartOpen = false;
+                      _isFavOpen = false;
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.transparent,
+                  ),
+                ),
+              ),
+            ]),
           ),
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(0.1),
@@ -328,6 +353,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
         body: Stack(children: [
           MaterialApp(
             debugShowCheckedModeBanner: false,
+            navigatorKey: navigatorKey,
             initialRoute: '/',
             routes: {
               '/': (context) => Scaffold(
@@ -342,13 +368,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           "For You",
@@ -374,14 +397,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: 14),
-                                  DisplayThreeSpots()
+                                  //DisplayThreeSpots()
                                 ],
                               ),
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
-                              child: LayoutBuilder(
-                                  builder: (context, constraints) {
+                              child: LayoutBuilder(builder: (context, constraints) {
                                 return AspectRatio(
                                   aspectRatio: 1.79 / 1,
                                   child: Container(
@@ -402,32 +424,25 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                     child: Stack(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.only(
-                                              bottom: 42, right: 30),
+                                          padding: EdgeInsets.only(bottom: 42, right: 30),
                                           alignment: Alignment.topRight,
                                           child: Image(
-                                            image: AssetImage(
-                                                "assets/images/kosz.png"),
+                                            image: AssetImage("assets/images/kosz.png"),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                         Container(
-                                          padding: EdgeInsets.only(
-                                              left: 16, top: 15),
+                                          padding: EdgeInsets.only(left: 16, top: 15),
                                           child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 Text("Summer Sale",
                                                     style: TextStyle(
                                                       fontFamily: 'Outfit',
                                                       fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.w800,
-                                                      color: const Color(
-                                                          0xFFFFFFFF),
+                                                      fontWeight: FontWeight.w800,
+                                                      color: const Color(0xFFFFFFFF),
                                                       height: 1,
                                                     )),
                                                 SizedBox(height: 12),
@@ -435,40 +450,32 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                                     style: TextStyle(
                                                       fontFamily: 'Outfit',
                                                       fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: const Color(
-                                                          0xFFFFFFFF),
+                                                      fontWeight: FontWeight.w400,
+                                                      color: const Color(0xFFFFFFFF),
                                                       height: 1,
                                                     )),
                                               ]),
                                         ),
                                         Container(
                                           alignment: Alignment.bottomRight,
-                                          padding: EdgeInsets.only(
-                                              bottom: 18, right: 28),
+                                          padding: EdgeInsets.only(bottom: 18, right: 28),
                                           child: TextButton(
                                             style: TextButton.styleFrom(
-                                              foregroundColor:
-                                                  const Color(0xFF000000),
-                                              backgroundColor:
-                                                  const Color(0xFFFFFFFF),
+                                              foregroundColor: const Color(0xFF000000),
+                                              backgroundColor: const Color(0xFFFFFFFF),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(12),
+                                                borderRadius: BorderRadius.circular(12),
                                               ),
                                             ),
                                             onPressed: () {},
                                             child: Padding(
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 8),
+                                              padding: EdgeInsets.symmetric(horizontal: 8),
                                               child: Text('More Info',
                                                   style: TextStyle(
                                                     fontFamily: 'Outfit',
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w600,
-                                                    color:
-                                                        const Color(0xFF000000),
+                                                    color: const Color(0xFF000000),
                                                     height: 1,
                                                   )),
                                             ),
@@ -485,13 +492,10 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           "New Arrivals",
@@ -506,13 +510,13 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                   SizedBox(height: 14),
-                                  DisplayTwoSpots(),
+                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
                                   SizedBox(height: 11),
-                                  DisplayTwoSpots(),
+                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
                                   SizedBox(height: 11),
-                                  DisplayThreeSpots(),
+                                  //DisplayThreeSpots(),
                                   SizedBox(height: 11),
-                                  DisplayTwoSpots(),
+                                  //DisplayTwoSpots(items: _filteredItems.sublist(itemIndex, itemIndex + 2)),
                                 ],
                               ),
                             ),
@@ -521,7 +525,8 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
-              '/product': (context) => const Product(itemID: "345435gg"),
+              '/product': (context) => const Product(),
+              '/catalog': (context) => Catalog(key: Catalog.catalogKey),
             },
           ),
           Visibility(
@@ -578,8 +583,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                           child: Container(
                             color: const Color(0xFF939393),
                             height: 1,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 0),
+                            margin: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                           ),
                         ),
                       ),
@@ -601,17 +605,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               },
                             ),
                             CustomTextButton(
-                              text: "Shoes",
-                              size: 18,
-                              weight: FontWeight.w400,
-                              fontColor: const Color(0xFF000000),
-                              maxWidth: 49,
-                              maxHeight: 39,
-                              onPressed: () {
-                                // Handle back button press
-                              },
-                            ),
-                            CustomTextButton(
                               text: "Pants",
                               size: 18,
                               weight: FontWeight.w400,
@@ -619,7 +612,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               maxWidth: 47,
                               maxHeight: 39,
                               onPressed: () {
-                                // Handle back button press
+                                setState(() {
+                                  _isMenuOpen = false;
+                                });
+                                navigatorKey.currentState?.popUntil((route) {
+                                  if (route.settings.name != '/catalog') {
+                                    navigatorKey.currentState
+                                        ?.pushNamedAndRemoveUntil('/', (route) => false);
+                                    CatalogState.selectedCategory = 'pants';
+                                    CatalogState.searchQuery = '';
+                                    navigatorKey.currentState?.pushNamed('/catalog');
+                                  } else {
+                                    Catalog.catalogKey.currentState?.filterItems('', 'pants');
+                                  }
+                                  return true;
+                                });
                               },
                             ),
                             CustomTextButton(
@@ -630,7 +637,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               maxWidth: 64,
                               maxHeight: 39,
                               onPressed: () {
-                                // Handle back button press
+                                setState(() {
+                                  _isMenuOpen = false;
+                                });
+                                navigatorKey.currentState?.popUntil((route) {
+                                  if (route.settings.name != '/catalog') {
+                                    navigatorKey.currentState
+                                        ?.pushNamedAndRemoveUntil('/', (route) => false);
+                                    CatalogState.selectedCategory = 't-shirts';
+                                    CatalogState.searchQuery = '';
+                                    navigatorKey.currentState?.pushNamed('/catalog');
+                                  } else {
+                                    Catalog.catalogKey.currentState?.filterItems('', 't-shirts');
+                                  }
+                                  return true;
+                                });
                               },
                             ),
                             CustomTextButton(
@@ -641,7 +662,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               maxWidth: 96,
                               maxHeight: 39,
                               onPressed: () {
-                                // Handle back button press
+                                setState(() {
+                                  _isMenuOpen = false;
+                                });
+                                navigatorKey.currentState?.popUntil((route) {
+                                  if (route.settings.name != '/catalog') {
+                                    navigatorKey.currentState
+                                        ?.pushNamedAndRemoveUntil('/', (route) => false);
+                                    CatalogState.selectedCategory = 'sweatshirts';
+                                    CatalogState.searchQuery = '';
+                                    navigatorKey.currentState?.pushNamed('/catalog');
+                                  } else {
+                                    Catalog.catalogKey.currentState?.filterItems('', 'sweatshirts');
+                                  }
+                                  return true;
+                                });
                               },
                             ),
                             CustomTextButton(
@@ -652,7 +687,21 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                               maxWidth: 39,
                               maxHeight: 39,
                               onPressed: () {
-                                // Handle back button press
+                                setState(() {
+                                  _isMenuOpen = false;
+                                });
+                                navigatorKey.currentState?.popUntil((route) {
+                                  if (route.settings.name != '/catalog') {
+                                    navigatorKey.currentState
+                                        ?.pushNamedAndRemoveUntil('/', (route) => false);
+                                    CatalogState.selectedCategory = 'hats';
+                                    CatalogState.searchQuery = '';
+                                    navigatorKey.currentState?.pushNamed('/catalog');
+                                  } else {
+                                    Catalog.catalogKey.currentState?.filterItems('', 'hats');
+                                  }
+                                  return true;
+                                });
                               },
                             ),
                           ],
@@ -677,8 +726,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 16, top: 7, bottom: 15, right: 15),
+                  padding: EdgeInsets.only(left: 16, top: 7, bottom: 15, right: 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -688,8 +736,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
@@ -702,44 +749,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                       height: 1,
                                     ),
                                   ),
-                                  Builder(
-                                    builder: (context) => GestureDetector(
-                                      onTapDown: (_) {
-                                        setState(() {
-                                          _opacity = 0.5;
-                                        });
-                                      },
-                                      onTapUp: (_) {
-                                        setState(() {
-                                          _opacity = 1.0;
-                                          setState(() {
-                                            _isCartOpen = !_isCartOpen;
-                                          });
-                                        });
-                                      },
-                                      onTapCancel: () {
-                                        setState(() {
-                                          _opacity = 1.0;
-                                        });
-                                      },
-                                      child: AnimatedOpacity(
-                                        opacity: _opacity,
-                                        duration: Duration(milliseconds: 150),
-                                        curve: Curves.easeInOut,
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          width: 40,
-                                          height: 46,
-                                          child: Center(
-                                            child: SvgPicture.asset(
-                                              'assets/icons/close.svg',
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                  CustomIconButton(
+                                    iconPath: 'assets/icons/close.svg',
+                                    iconWidth: 24,
+                                    iconHeight: 24,
+                                    maxWidth: 40,
+                                    maxHeight: 46,
+                                    onPressed: () {
+                                      setState(() {
+                                        _isCartOpen = !_isCartOpen;
+                                      });
+                                    },
                                   ),
                                 ]),
                             Padding(
@@ -759,19 +779,18 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                 height: 169,
                                 child: SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       CartElement(
-                                        image: "assets/images/wat.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Smart Watch",
                                         brand: "Watched",
                                         price: "\$399.99",
                                       ),
                                       SizedBox(height: 10),
                                       CartElement(
-                                        image: "assets/images/snk.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Modern Sneakers",
                                         brand: "Nike",
                                         price: "\$699.99",
@@ -837,8 +856,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Padding(
-                  padding:
-                      EdgeInsets.only(left: 16, top: 7, bottom: 15, right: 15),
+                  padding: EdgeInsets.only(left: 16, top: 7, bottom: 15, right: 15),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -848,8 +866,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Text(
@@ -862,44 +879,17 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                       height: 1,
                                     ),
                                   ),
-                                  Builder(
-                                    builder: (context) => GestureDetector(
-                                      onTapDown: (_) {
-                                        setState(() {
-                                          _opacity = 0.5;
-                                        });
-                                      },
-                                      onTapUp: (_) {
-                                        setState(() {
-                                          _opacity = 1.0;
-                                          setState(() {
-                                            _isFavOpen = !_isFavOpen;
-                                          });
-                                        });
-                                      },
-                                      onTapCancel: () {
-                                        setState(() {
-                                          _opacity = 1.0;
-                                        });
-                                      },
-                                      child: AnimatedOpacity(
-                                        opacity: _opacity,
-                                        duration: Duration(milliseconds: 150),
-                                        curve: Curves.easeInOut,
-                                        child: Container(
-                                          color: Colors.transparent,
-                                          width: 40,
-                                          height: 46,
-                                          child: Center(
-                                            child: SvgPicture.asset(
-                                              'assets/icons/close.svg',
-                                              width: 24,
-                                              height: 24,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                                  CustomIconButton(
+                                    iconPath: 'assets/icons/close.svg',
+                                    iconWidth: 24,
+                                    iconHeight: 24,
+                                    maxWidth: 40,
+                                    maxHeight: 46,
+                                    onPressed: () {
+                                      setState(() {
+                                        _isFavOpen = !_isFavOpen;
+                                      });
+                                    },
                                   ),
                                 ]),
                             Padding(
@@ -919,33 +909,32 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
                                 height: 169,
                                 child: SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       CartElement(
-                                        image: "assets/images/wat.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Smart Watch",
                                         brand: "Watched",
                                         price: "\$399.99",
                                       ),
                                       SizedBox(height: 10),
                                       CartElement(
-                                        image: "assets/images/snk.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Modern Sneakers 677GH",
                                         brand: "Nike",
                                         price: "\$699.99",
                                       ),
                                       SizedBox(height: 10),
                                       CartElement(
-                                        image: "assets/images/snk.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Modern Sneakers ",
                                         brand: "Nike",
                                         price: "\$699.99",
                                       ),
                                       SizedBox(height: 10),
                                       CartElement(
-                                        image: "assets/images/snk.jpg",
+                                        image: "assets/images/items/generated-image-6.png",
                                         name: "Modern Sneakers",
                                         brand: "Nike",
                                         price: "\$699.99",

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:store/widget/customIconButton.dart';
+import 'package:store/widgets/customIconButton.dart';
 
 class CartElement extends StatefulWidget {
   final String image;

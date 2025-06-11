@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../models/item.dart';
+
 class DisplayTwoSpots extends StatefulWidget {
-  const DisplayTwoSpots({
-    super.key,
-  });
+  final List<Item> items;
+
+  const DisplayTwoSpots({super.key, required this.items});
 
   @override
   DisplayTwoSpotsState createState() => DisplayTwoSpotsState();
@@ -37,7 +39,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image(
-                                  image: AssetImage("assets/images/snk.jpg"),
+                                  image: AssetImage(widget.items[0].image),
                                   fit: BoxFit.fitWidth,
                                 ),
                               ),
@@ -49,7 +51,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Modern Sneakers",
+                                      widget.items[0].name,
                                       style: TextStyle(
                                         fontFamily: 'Outfit',
                                         fontSize: 14,
@@ -59,7 +61,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                       ),
                                     ),
                                     Text(
-                                      "Nike",
+                                      widget.items[0].brand,
                                       style: TextStyle(
                                         fontFamily: 'Outfit',
                                         fontSize: 12,
@@ -71,7 +73,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                   ]),
                             ),
                             Text(
-                              "\$129.99",
+                              "\$${widget.items[0].price}",
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
@@ -85,10 +87,13 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                 ),
               ),
               SizedBox(width: 11),
+
               Expanded(
                 flex: 1,
-                child: GestureDetector(
-                  onTap: () {},
+                child: widget.items.length >= 2 ? GestureDetector(
+                  onTap: () {
+
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAFB),
@@ -105,7 +110,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
                                 child: Image(
-                                  image: AssetImage("assets/images/snk.jpg"),
+                                  image: AssetImage(widget.items[1].image),
                                   fit: BoxFit.fitWidth,
                                 ),
                               ),
@@ -117,7 +122,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Modern Sneakers",
+                                      widget.items[1].name,
                                       style: TextStyle(
                                         fontFamily: 'Outfit',
                                         fontSize: 14,
@@ -127,7 +132,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                       ),
                                     ),
                                     Text(
-                                      "Nike",
+                                      widget.items[1].brand,
                                       style: TextStyle(
                                         fontFamily: 'Outfit',
                                         fontSize: 12,
@@ -139,7 +144,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                                   ]),
                             ),
                             Text(
-                              "\$129.99",
+                              "\$${widget.items[1].price}",
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
@@ -150,7 +155,7 @@ class DisplayTwoSpotsState extends State<DisplayTwoSpots> {
                           ]),
                     ),
                   ),
-                ),
+                ) : Container(),
               ),
             ],
           ));
