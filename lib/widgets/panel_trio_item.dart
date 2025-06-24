@@ -77,7 +77,7 @@ class DisplayThreeSpotsState extends State<DisplayThreeSpots> {
                                   ]),
                             ),
                             Text(
-                              "\$${widget.items[0].price}9",
+                              "\$${widget.items[0].price.toStringAsFixed(2)}",
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
@@ -153,7 +153,7 @@ class DisplayThreeSpotsState extends State<DisplayThreeSpots> {
                                               ),
                                             ]),
                                         Text(
-                                          "\$${widget.items[1].price}",
+                                          "\$${widget.items[1].price.toStringAsFixed(2)}",
                                           style: TextStyle(
                                             fontFamily: 'Outfit',
                                             fontSize: 14,
@@ -231,7 +231,7 @@ class DisplayThreeSpotsState extends State<DisplayThreeSpots> {
                                                 ),
                                               ]),
                                           Text(
-                                            "\$${widget.items[2].price}",
+                                            "\$${widget.items[2].price.toStringAsFixed(2)}",
                                             style: TextStyle(
                                               fontFamily: 'Outfit',
                                               fontSize: 14,

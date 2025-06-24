@@ -1,24 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:store/widgets/customIconButton.dart';
+import 'package:store/layout/cart.dart';
+import 'package:store/models/list_item.dart';
+import 'package:store/widgets/icon_button.dart';
 
-class CartElement extends StatefulWidget {
-  final String image;
-  final String name;
-  final String brand;
-  final String price;
+class ListElement extends StatefulWidget {
+  final ListItem listItem;
 
-  const CartElement(
-      {super.key,
-      required this.image,
-      required this.name,
-      required this.brand,
-      required this.price});
+  const ListElement({super.key, required this.listItem});
 
   @override
-  CartElementState createState() => CartElementState();
+  ListElementState createState() => ListElementState();
 }
 
-class CartElementState extends State<CartElement> {
+class ListElementState extends State<ListElement> {
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -32,7 +26,7 @@ class CartElementState extends State<CartElement> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image(
-                    image: AssetImage(widget.image),
+                    image: AssetImage(widget.listItem.item.image),
                     fit: BoxFit.cover,
                     height: 56,
                     width: 56,
@@ -51,7 +45,7 @@ class CartElementState extends State<CartElement> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              widget.name,
+                              widget.listItem.item.name,
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
@@ -61,7 +55,7 @@ class CartElementState extends State<CartElement> {
                               ),
                             ),
                             Text(
-                              widget.brand,
+                              widget.listItem.item.brand,
                               style: TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 12,
@@ -72,7 +66,7 @@ class CartElementState extends State<CartElement> {
                             ),
                           ]),
                       Text(
-                        widget.price,
+                        '\$${widget.listItem.item.price.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 14,
@@ -109,11 +103,16 @@ class CartElementState extends State<CartElement> {
                         maxWidth: 20,
                         maxHeight: 20,
                         onPressed: () {
-                          setState(() {});
+                          setState(() {
+                            if (widget.listItem.quantity > 1) {
+                              widget.listItem.quantity--;
+                              CartState.items.notifyListeners();
+                            }
+                          });
                           // Handle back button press
                         },
                       ),
-                      Text('2',
+                      Text(widget.listItem.quantity.toString(),
                           style: TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 14,
@@ -128,7 +127,10 @@ class CartElementState extends State<CartElement> {
                         maxWidth: 20,
                         maxHeight: 20,
                         onPressed: () {
-                          setState(() {});
+                          setState(() {
+                            widget.listItem.quantity++;
+                            CartState.items.notifyListeners();
+                          });
                           // Handle back button press
                         },
                       ),
@@ -144,7 +146,8 @@ class CartElementState extends State<CartElement> {
                 maxWidth: 24,
                 maxHeight: 38,
                 onPressed: () {
-                  setState(() {});
+                  CartState.items.value.remove(widget.listItem);
+                  CartState.items.notifyListeners();
                   // Handle back button press
                 },
               ),

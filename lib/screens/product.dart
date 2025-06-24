@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:store/layout/cart.dart';
 import 'package:store/models/item.dart';
 import 'package:store/services/item_service.dart';
-import 'package:store/widgets/customIconButton.dart';
-import 'package:store/widgets/displayTwoSpots.dart';
+import 'package:store/widgets/icon_button.dart';
+import 'package:store/widgets/panel_pair_item.dart';
 
 class Product extends StatefulWidget {
   final Item? item;
@@ -14,24 +15,6 @@ class Product extends StatefulWidget {
 }
 
 class _ProductState extends State<Product> {
-  @override
-  void initState() {
-    super.initState();
-    _loadItems();
-  }
-
-  List<Item> _items = [];
-  bool _isLoading = true;
-
-  Future<void> _loadItems() async {
-    setState(() => _isLoading = true);
-    final items = await ItemService.loadItems();
-    setState(() {
-      _items = items;
-      _isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -140,7 +123,7 @@ class _ProductState extends State<Product> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("\$${widget.item?.price}",
+                              Text("\$${widget.item?.price.toStringAsFixed(2)}",
                                   style: TextStyle(
                                     fontFamily: 'Outfit',
                                     fontSize: 32,
@@ -156,7 +139,9 @@ class _ProductState extends State<Product> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  CartState.addItem(widget.item!);
+                                },
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 7, vertical: 6),
                                   child: Text('Add to cart',
@@ -246,7 +231,13 @@ class _ProductState extends State<Product> {
                     padding: EdgeInsets.symmetric(horizontal: 4),
                     width: double.infinity,
                     child: Text(
-                      "Material: ${widget.item!.materials}\nFit: ${widget.item!.fit}\nSleeve: Long\nPattern: Slik\nLength: ${widget.item!.dimensions.length} cm\nWidth : ${widget.item!.dimensions.width} cm\nID: ${widget.item!.id}",
+                      "Category: ${widget.item!.category}\n"
+                      "Material: ${widget.item!.materials}\n"
+                      "Fit: ${widget.item!.fit}\n"
+                      "Width : ${widget.item!.dimensions.width} cm\n"
+                      "Height: ${widget.item!.dimensions.height} cm\n"
+                      "Length: ${widget.item!.dimensions.length} cm\n"
+                      "ID: ${widget.item!.id}",
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 22,
@@ -275,9 +266,14 @@ class _ProductState extends State<Product> {
                             ),
                           ),
                           SizedBox(height: 10),
-                          _isLoading
-                              ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                              : DisplayTwoSpots(items: _items.sublist(0, 2)),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: ItemService.isLoading,
+                            builder: (context, isLoading, child) {
+                              return isLoading
+                                  ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
+                                  : DisplayTwoSpots(items: ItemService.items.sublist(0, 2));
+                            },
+                          ),
                         ],
                       )),
                   SizedBox(height: 25),
