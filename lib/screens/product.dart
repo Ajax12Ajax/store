@@ -16,6 +16,12 @@ class Product extends StatefulWidget {
 
 class _ProductState extends State<Product> {
   @override
+  void initState() {
+    super.initState();
+    ItemService.trackItemClick(widget.item!);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: const Color(0xFFFFFFFF),
@@ -141,6 +147,7 @@ class _ProductState extends State<Product> {
                                 ),
                                 onPressed: () {
                                   CartState.addItem(widget.item!);
+                                  ItemService.trackItemClick(widget.item!);
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 7, vertical: 6),
@@ -271,7 +278,7 @@ class _ProductState extends State<Product> {
                             builder: (context, isLoading, child) {
                               return isLoading
                                   ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                                  : DisplayTwoSpots(items: ItemService.items.sublist(0, 2));
+                                  : DisplayTwoSpots(items: ItemService.getSimilarItems(widget.item!));
                             },
                           ),
                         ],

@@ -24,6 +24,32 @@ class CatalogState extends State<Catalog> {
     _initializeItems();
   }
 
+  static void changeCatalog(String? searchQuery, String? category) {
+    _isLoading = true;
+    String currentRoute = '';
+    MyAppState.navigatorKey.currentState?.popUntil((route) {
+      currentRoute = route.settings.name ?? '';
+      return true;
+    });
+    ItemService.selectedCategory = category;
+    ItemService.searchQuery = searchQuery ?? '';
+    if (currentRoute != '/catalog') {
+      MyAppState.navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+      MyAppState.navigatorKey.currentState?.pushNamed('/catalog');
+    } else {
+      if (!ItemService.isLoading.value) {
+        ItemService.filterItems();
+      } else {
+        ItemService.isLoading.addListener(() => ItemService.filterItems());
+      }
+    }
+    if (ItemService.selectedCategory != 'for_you' && ItemService.selectedCategory != null) {
+      print('Tracking category view: ${ItemService.selectedCategory}');
+      ItemService.trackCategoryView(ItemService.selectedCategory!);
+    }
+  }
+
   void _initializeItems() {
     if (!ItemService.isLoading.value) {
       _applyFilters();
@@ -52,28 +78,6 @@ class CatalogState extends State<Catalog> {
           _isLoading = false;
         });
       });
-    }
-  }
-
-  static void changeCategory(String? searchQuery, String? category) {
-    _isLoading = true;
-    String currentRoute = '';
-    MyAppState.navigatorKey.currentState?.popUntil((route) {
-      currentRoute = route.settings.name ?? '';
-      return true;
-    });
-    ItemService.selectedCategory = category;
-    ItemService.searchQuery = searchQuery ?? '';
-    if (currentRoute != '/catalog') {
-      MyAppState.navigatorKey.currentState
-          ?.pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
-      MyAppState.navigatorKey.currentState?.pushNamed('/catalog');
-    } else {
-      if (!ItemService.isLoading.value) {
-        ItemService.filterItems();
-      } else {
-        ItemService.isLoading.addListener(() => ItemService.filterItems());
-      }
     }
   }
 
@@ -144,8 +148,10 @@ class CatalogState extends State<Catalog> {
               padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               child: Text(
                 ItemService.selectedCategory != null
-                    ? ItemService.selectedCategory![0].toUpperCase() +
-                        ItemService.selectedCategory!.substring(1)
+                    ? ItemService.selectedCategory == 'for_you'
+                        ? "For You"
+                        : ItemService.selectedCategory![0].toUpperCase() +
+                            ItemService.selectedCategory!.substring(1)
                     : "\"${ItemService.searchQuery}\"",
                 textAlign: TextAlign.left,
                 style: TextStyle(

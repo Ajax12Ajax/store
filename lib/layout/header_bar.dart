@@ -178,7 +178,7 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
                                                 ),
                                               ),
                                               onSubmitted: (value) {
-                                                CatalogState.changeCategory(value, null);
+                                                CatalogState.changeCatalog(value, null);
                                               },
                                             ),
                                           ),

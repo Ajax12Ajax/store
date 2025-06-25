@@ -1,6 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:store/models/item.dart';
+import 'package:store/screens/catalog.dart';
 import 'package:store/widgets/panel_pair_item.dart';
 import 'package:store/widgets/panel_trio_item.dart';
 
@@ -15,7 +15,7 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  int _firstItems = 0;
+  late List<Item> _items;
   bool _isLoading = true;
 
   @override
@@ -32,11 +32,7 @@ class HomeState extends State<Home> {
     if (!ItemService.isLoading.value) {
       setState(() {
         _isLoading = true;
-        while (ItemService.items[_firstItems].name.length >= 20 ||
-            ItemService.items[_firstItems + 1].name.length >= 19 ||
-            ItemService.items[_firstItems + 2].name.length >= 19) {
-          _firstItems = Random().nextInt((ItemService.items.length - 3).clamp(0, 16));
-        }
+        _items = ItemService.getRecommendedItems(true);
         _isLoading = false;
       });
     }
@@ -78,7 +74,7 @@ class HomeState extends State<Home> {
                             maxWidth: 43,
                             maxHeight: 16,
                             onPressed: () {
-                              // Handle back button press
+                              CatalogState.changeCatalog(null, 'for_you');
                             },
                           ),
                         ],
@@ -87,8 +83,7 @@ class HomeState extends State<Home> {
                     SizedBox(height: 14),
                     _isLoading
                         ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                        : DisplayThreeSpots(
-                            items: ItemService.items.sublist(_firstItems, _firstItems + 3)),
+                        : DisplayThreeSpots(items: _items),
                   ],
                 ),
               ),

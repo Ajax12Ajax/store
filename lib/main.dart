@@ -23,8 +23,6 @@ class MyApp extends StatefulWidget {
 /*
 zrobić porządek
 loading screem
-zrobić for you
-zrobic podobne pod produktami
 zrobić mapy
  */
 

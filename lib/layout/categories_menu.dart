@@ -93,6 +93,8 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                         maxWidth: 65,
                         maxHeight: 39,
                         onPressed: () {
+                          controller.reverse();
+                          CatalogState.changeCatalog(null, 'for_you');
                         },
                       ),
                       CustomTextButton(
@@ -104,7 +106,19 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                         maxHeight: 39,
                         onPressed: () {
                           controller.reverse();
-                          CatalogState.changeCategory(null, 'pants');
+                          CatalogState.changeCatalog(null, 'pants');
+                        },
+                      ),
+                      CustomTextButton(
+                        text: "Shorts",
+                        size: 18,
+                        weight: FontWeight.w400,
+                        fontColor: const Color(0xFF000000),
+                        maxWidth: 53,
+                        maxHeight: 39,
+                        onPressed: () {
+                          controller.reverse();
+                          CatalogState.changeCatalog(null, 'shorts');
                         },
                       ),
                       CustomTextButton(
@@ -116,7 +130,7 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                         maxHeight: 39,
                         onPressed: () {
                           controller.reverse();
-                          CatalogState.changeCategory(null, 't-shirts');
+                          CatalogState.changeCatalog(null, 't-shirts');
                         },
                       ),
                       CustomTextButton(
@@ -128,7 +142,7 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                         maxHeight: 39,
                         onPressed: () {
                           controller.reverse();
-                          CatalogState.changeCategory(null, 'sweatshirts');
+                          CatalogState.changeCatalog(null, 'sweatshirts');
                         },
                       ),
                       CustomTextButton(
@@ -140,7 +154,7 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                         maxHeight: 39,
                         onPressed: () {
                           controller.reverse();
-                          CatalogState.changeCategory(null, 'hats');
+                          CatalogState.changeCatalog(null, 'hats');
                         },
                       ),
                     ],
