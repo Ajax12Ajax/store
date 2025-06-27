@@ -47,7 +47,7 @@ class CustomIconButtonState extends State<CustomIconButton> {
       },
       child: AnimatedOpacity(
         opacity: _opacity,
-        duration: Duration(milliseconds: 150),
+        duration: Duration(milliseconds: 100),
         curve: Curves.easeInOut,
         child: Container(
           color: Colors.transparent,

@@ -45,7 +45,6 @@ class CatalogState extends State<Catalog> {
       }
     }
     if (ItemService.selectedCategory != 'for_you' && ItemService.selectedCategory != null) {
-      print('Tracking category view: ${ItemService.selectedCategory}');
       ItemService.trackCategoryView(ItemService.selectedCategory!);
     }
   }

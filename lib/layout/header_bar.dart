@@ -3,6 +3,7 @@ import 'package:store/layout/cart.dart';
 import 'package:store/layout/categories_menu.dart';
 import 'package:store/layout/favorites.dart';
 import 'package:store/main.dart';
+import 'package:store/screens/store_locations_map.dart';
 
 import '../screens/catalog.dart';
 import '../widgets/icon_button.dart';
@@ -91,7 +92,7 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
                         maxWidth: 37,
                         maxHeight: 46,
                         onPressed: () {
-                          // Handle back button press
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => StoreLocationsMap()));
                         },
                       ),
                       SizedBox(width: 8),
