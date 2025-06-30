@@ -7,24 +7,11 @@ class LoadingAnimation extends StatefulWidget {
   LoadingAnimationState createState() => LoadingAnimationState();
 }
 
-class LoadingAnimationState extends State<LoadingAnimation>
-    with TickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1400),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
+class LoadingAnimationState extends State<LoadingAnimation> with TickerProviderStateMixin {
+  late final AnimationController _animationController = AnimationController(
+    duration: const Duration(milliseconds: 1400),
+    vsync: this,
+  )..repeat();
 
   @override
   Widget build(BuildContext context) {
@@ -69,5 +56,11 @@ class LoadingAnimationState extends State<LoadingAnimation>
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 }

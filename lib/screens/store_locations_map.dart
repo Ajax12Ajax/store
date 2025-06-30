@@ -116,7 +116,7 @@ class StoreLocationsMapState extends State<StoreLocationsMap> {
           ),
           Scalebar(
             alignment: Alignment.bottomLeft,
-            textStyle: TextStyle(
+            textStyle: const TextStyle(
               fontFamily: 'Outfit',
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ class StoreLocationsMapState extends State<StoreLocationsMap> {
             lineColor: Colors.black,
             strokeWidth: 2,
             lineHeight: 5,
-            padding: EdgeInsets.all(40),
+            padding: const EdgeInsets.all(40),
             length: ScalebarLength.m,
           ),
         ],

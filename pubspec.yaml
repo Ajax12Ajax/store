@@ -79,7 +79,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/images/
-    - assets/images/kosz.png
+    - assets/images/bag.png
     - assets/images/items/
     - assets/items.json
 

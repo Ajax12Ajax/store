@@ -24,7 +24,7 @@ class FloatingActionButtonsState extends State<FloatingActionButtons> {
     for (var controller in [
       CartState.controller,
       FavoritesState.controller,
-      CategoriesMenuState.controller
+      CategoriesMenuState.controller,
     ]) {
       controller.addStatusListener(_handleAnimationStatus);
     }
@@ -55,38 +55,39 @@ class FloatingActionButtonsState extends State<FloatingActionButtons> {
             borderRadius: BorderRadius.circular(1000),
           ),
           child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CustomIconButton(
-                  iconPath: 'assets/icons/favourite.svg',
-                  iconWidth: 34,
-                  iconHeight: 30,
-                  maxWidth: 58,
-                  maxHeight: 58,
-                  onPressed: () {
-                    setState(() {
-                      FavoritesState.controller.forward();
-                      CartState.controller.reverse();
-                      CategoriesMenuState.controller.reverse();
-                    });
-                  },
-                ),
-                CustomIconButton(
-                  iconPath: 'assets/icons/cart.svg',
-                  iconWidth: 32,
-                  iconHeight: 37,
-                  maxWidth: 57,
-                  maxHeight: 58,
-                  onPressed: () {
-                    setState(() {
-                      CartState.controller.forward();
-                      FavoritesState.controller.reverse();
-                      CategoriesMenuState.controller.reverse();
-                    });
-                  },
-                ),
-              ]),
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomIconButton(
+                iconPath: 'assets/icons/favourite.svg',
+                iconWidth: 34,
+                iconHeight: 30,
+                maxWidth: 58,
+                maxHeight: 58,
+                onPressed: () {
+                  setState(() {
+                    FavoritesState.controller.forward();
+                    CartState.controller.reverse();
+                    CategoriesMenuState.controller.reverse();
+                  });
+                },
+              ),
+              CustomIconButton(
+                iconPath: 'assets/icons/cart.svg',
+                iconWidth: 32,
+                iconHeight: 37,
+                maxWidth: 57,
+                maxHeight: 58,
+                onPressed: () {
+                  setState(() {
+                    CartState.controller.forward();
+                    FavoritesState.controller.reverse();
+                    CategoriesMenuState.controller.reverse();
+                  });
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

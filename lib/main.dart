@@ -7,6 +7,7 @@ import 'package:store/screens/catalog.dart';
 import 'package:store/screens/home.dart';
 import 'package:store/screens/loading.dart';
 import 'package:store/screens/product.dart';
+import 'package:store/widgets/exit_overlay.dart';
 import 'package:store/widgets/floating_action_buttons.dart';
 
 void main() {
@@ -20,23 +21,27 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => MyAppState();
 }
 
-/*
-zrobić porządek(popatrzeć czy napewno potrzeba stateful widgetów)
- */
-
 class MyAppState extends State<MyApp> {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
   bool _visible = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      CartState.controller.addStatusListener(_handleAnimationStatus);
-      FavoritesState.controller.addStatusListener(_handleAnimationStatus);
-      CategoriesMenuState.controller.addStatusListener(_handleAnimationStatus);
+      _addAnimationListeners();
     });
+  }
+
+  void _addAnimationListeners() {
+    final controllers = [
+      CartState.controller,
+      FavoritesState.controller,
+      CategoriesMenuState.controller,
+    ];
+    for (var controller in controllers) {
+      controller.addStatusListener(_handleAnimationStatus);
+    }
   }
 
   void _handleAnimationStatus(AnimationStatus status) {
@@ -72,21 +77,7 @@ class MyAppState extends State<MyApp> {
                 '/catalog': (context) => Catalog(),
               },
             ),
-            Visibility(
-              visible: _visible,
-              child: GestureDetector(
-                onTap: () {
-                  CategoriesMenuState.controller.reverse();
-                  FavoritesState.controller.reverse();
-                  CartState.controller.reverse();
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: double.infinity,
-                  color: Colors.transparent,
-                ),
-              ),
-            ),
+            ExitOverlay(visible: _visible),
             CategoriesMenu(),
             Cart(),
             Favorites(),

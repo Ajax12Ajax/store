@@ -21,18 +21,13 @@ class Loading extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
               backgroundColor: const Color(0xFFFFFFFF),
-              body: Center(
-                child: LoadingAnimation(),
-              ),
+              body: Center(child: LoadingAnimation()),
             );
           } else if (snapshot.hasError) {
             return Scaffold(
               backgroundColor: const Color(0xFFFFFFFF),
               body: Center(
-                child: Text(
-                  'Error: ${snapshot.error}',
-                  style: const TextStyle(color: Colors.red),
-                ),
+                child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
               ),
             );
           }

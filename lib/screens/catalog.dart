@@ -111,7 +111,7 @@ class CatalogState extends State<Catalog> {
           ItemService.filteredItems[itemIndex + 2].name.length < 19) {
         widgets.add(
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.5),
+            padding: const EdgeInsets.symmetric(vertical: 5.5),
             child: DisplayThreeSpots(
               items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 3),
             ),
@@ -124,7 +124,7 @@ class CatalogState extends State<Catalog> {
       } else if (itemIndex + 2 <= itemCount) {
         widgets.add(
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.5),
+            padding: const EdgeInsets.symmetric(vertical: 5.5),
             child: DisplayTwoSpots(
               items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 2),
             ),
@@ -135,7 +135,7 @@ class CatalogState extends State<Catalog> {
       } else {
         widgets.add(
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.5),
+            padding: const EdgeInsets.symmetric(vertical: 5.5),
             child: DisplayTwoSpots(
               items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 1),
             ),
@@ -156,7 +156,7 @@ class CatalogState extends State<Catalog> {
         children: [
           Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
             child: Text(
               ItemService.selectedCategory != null
                   ? ItemService.selectedCategory == 'for_you'
@@ -165,11 +165,11 @@ class CatalogState extends State<Catalog> {
                               ItemService.selectedCategory!.substring(1)
                   : "\"${ItemService.searchQuery}\"",
               textAlign: TextAlign.left,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF000000),
+                color: Color(0xFF000000),
               ),
             ),
           ),
@@ -181,7 +181,7 @@ class CatalogState extends State<Catalog> {
                   return isLoading
                       ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
                       : Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 13),
+                          padding: const EdgeInsets.symmetric(horizontal: 13),
                           child: Column(children: _itemList),
                         );
                 },

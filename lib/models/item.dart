@@ -1,4 +1,3 @@
-
 class Item {
   final String id;
   final String name;
@@ -45,11 +44,7 @@ class Dimensions {
   final double height;
   final double length;
 
-  const Dimensions({
-    required this.width,
-    required this.height,
-    required this.length,
-  });
+  const Dimensions({required this.width, required this.height, required this.length});
 
   factory Dimensions.fromJson(Map<String, dynamic> json) {
     return Dimensions(

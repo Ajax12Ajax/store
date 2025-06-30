@@ -32,47 +32,53 @@ class LocationMarker extends StatefulWidget {
 }
 
 class LocationMarkerState extends State<LocationMarker> {
+  void _selectMarker() {
+    setState(() {
+      widget.opacity = 1.0;
+      widget.selected = true;
+      widget.lastCenter = StoreLocationsMapState.center;
+      widget.lastZoom = StoreLocationsMapState.zoom;
+      StoreLocationsMapState.mapController.move(
+        widget.location,
+        widget.zoom = (StoreLocationsMapState.zoom < 14 ? 14.0 : StoreLocationsMapState.zoom),
+      );
+      widget.markerWidth = 220;
+      widget.markerHeight = 208.1 * 2;
+
+      int currentIndex = StoreLocationsMapState.markers.indexOf(widget);
+      if (currentIndex != -1) {
+        var marker = StoreLocationsMapState.markers.removeAt(currentIndex);
+        StoreLocationsMapState.markers.add(marker);
+        StoreLocationsMapState.forceMapRebuild();
+      }
+    });
+  }
+
+  void _deselectMarker() {
+    setState(() {
+      widget.selected = false;
+      if (widget.location == StoreLocationsMapState.center &&
+          widget.zoom == StoreLocationsMapState.zoom) {
+        StoreLocationsMapState.mapController.move(widget.lastCenter, widget.lastZoom);
+      }
+      widget.markerWidth = 30;
+      widget.markerHeight = 37 * 2;
+      StoreLocationsMapState.forceMapRebuild();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          widget.opacity = 0.5;
-        });
-      },
-      onTapUp: (_) {
-        setState(() {
-          widget.opacity = 1.0;
-          widget.selected = true;
-          widget.lastCenter = StoreLocationsMapState.center;
-          widget.lastZoom = StoreLocationsMapState.zoom;
-          StoreLocationsMapState.mapController.move(
-            widget.location,
-            widget.zoom = (StoreLocationsMapState.zoom < 14 ? 14.0 : StoreLocationsMapState.zoom),
-          );
-          widget.markerWidth = 220;
-          widget.markerHeight = 208.1 * 2;
-
-          int currentIndex = StoreLocationsMapState.markers.indexOf(widget);
-          if (currentIndex != -1) {
-            var marker = StoreLocationsMapState.markers.removeAt(currentIndex);
-            StoreLocationsMapState.markers.add(marker);
-            StoreLocationsMapState.forceMapRebuild();
-          }
-        });
-      },
-      onTapCancel: () {
-        setState(() {
-          widget.opacity = 1.0;
-        });
-      },
+      onTapDown: (_) => setState(() => widget.opacity = 0.5),
+      onTapUp: (_) => _selectMarker(),
+      onTapCancel: () => setState(() => widget.opacity = 1.0),
       child: Stack(
         children: [
-          Visibility(
-            visible: !widget.selected,
-            child: AnimatedOpacity(
+          if (!widget.selected)
+            AnimatedOpacity(
               opacity: widget.opacity,
-              duration: Duration(milliseconds: 100),
+              duration: const Duration(milliseconds: 100),
               curve: Curves.easeInOut,
               child: Container(
                 color: Colors.transparent,
@@ -83,18 +89,16 @@ class LocationMarkerState extends State<LocationMarker> {
                 ),
               ),
             ),
-          ),
-          Visibility(
-            visible: widget.selected,
-            child: Column(
+          if (widget.selected)
+            Column(
               children: [
                 Container(
                   width: widget.markerWidth,
                   height: 177.1,
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
-                    color: Color(0xFFF6F6F6),
-                    boxShadow: [
+                    color: const Color(0xFFF6F6F6),
+                    boxShadow: const [
                       BoxShadow(
                         color: Color(0x40000000),
                         blurRadius: 4,
@@ -107,10 +111,10 @@ class LocationMarkerState extends State<LocationMarker> {
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.only(left: 9),
+                        padding: const EdgeInsets.only(left: 9),
                         height: 34,
                         width: double.infinity,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.rectangle,
                           color: Color(0xFFD9D9D9),
                           borderRadius: BorderRadius.only(
@@ -138,19 +142,7 @@ class LocationMarkerState extends State<LocationMarker> {
                               maxWidth: 34,
                               maxHeight: 34,
                               onPressed: () {
-                                setState(() {
-                                  widget.selected = false;
-                                  if (widget.location == StoreLocationsMapState.center &&
-                                      widget.zoom == StoreLocationsMapState.zoom) {
-                                    StoreLocationsMapState.mapController.move(
-                                      widget.lastCenter,
-                                      widget.lastZoom,
-                                    );
-                                  }
-                                  widget.markerWidth = 30;
-                                  widget.markerHeight = 37 * 2;
-                                  StoreLocationsMapState.forceMapRebuild();
-                                });
+                                _deselectMarker();
                               },
                             ),
                           ],
@@ -172,7 +164,7 @@ class LocationMarkerState extends State<LocationMarker> {
                               ),
                             ),
                             Container(
-                              margin: EdgeInsets.symmetric(vertical: 7),
+                              margin: const EdgeInsets.symmetric(vertical: 7),
                               height: 0.5,
                               width: double.infinity,
                               color: Color(0xFF000000),
@@ -203,7 +195,6 @@ class LocationMarkerState extends State<LocationMarker> {
                 ),
               ],
             ),
-          ),
         ],
       ),
     );

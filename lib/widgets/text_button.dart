@@ -7,7 +7,7 @@ class CustomTextButton extends StatefulWidget {
   final Color fontColor;
   final double maxWidth;
   final double maxHeight;
-  final Function() onPressed;
+  final VoidCallback onPressed;
 
   const CustomTextButton({
     super.key,
@@ -30,25 +30,17 @@ class CustomTextButtonState extends State<CustomTextButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) {
-        setState(() {
-          _opacity = 0.5;
-        });
-      },
+      onTapDown: (_) => setState(() => _opacity = 0.5),
       onTapUp: (_) {
         setState(() {
           _opacity = 1.0;
           widget.onPressed();
         });
       },
-      onTapCancel: () {
-        setState(() {
-          _opacity = 1.0;
-        });
-      },
+      onTapCancel: () => setState(() => _opacity = 1.0),
       child: AnimatedOpacity(
         opacity: _opacity,
-        duration: Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 100),
         curve: Curves.easeInOut,
         child: Container(
           color: Colors.transparent,

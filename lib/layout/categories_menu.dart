@@ -15,16 +15,11 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
   late Animation<double> _distanceAnimation;
 
   void _animationController() {
-    controller = AnimationController(
-      duration: const Duration(milliseconds: 50),
-      vsync: this,
-    );
-    _distanceAnimation = Tween<double>(begin: -216, end: 0).animate(
-      CurvedAnimation(
-        parent: controller,
-        curve: Curves.easeInOut,
-      ),
-    );
+    controller = AnimationController(duration: const Duration(milliseconds: 50), vsync: this);
+    _distanceAnimation = Tween<double>(
+      begin: -216,
+      end: 0,
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
     controller.addListener(() {
       setState(() {});
     });
@@ -164,5 +159,11 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
             )),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }

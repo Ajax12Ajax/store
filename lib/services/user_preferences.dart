@@ -13,11 +13,11 @@ class UserPreferences {
     Map<String, int>? materialPreferences,
     Map<String, int>? fitPreferences,
     Map<String, int>? itemClicks,
-  })  : categoryVisits = categoryVisits ?? {},
-        colorPreferences = colorPreferences ?? {},
-        materialPreferences = materialPreferences ?? {},
-        fitPreferences = fitPreferences ?? {},
-        itemClicks = itemClicks ?? {};
+  }) : categoryVisits = categoryVisits ?? {},
+       colorPreferences = colorPreferences ?? {},
+       materialPreferences = materialPreferences ?? {},
+       fitPreferences = fitPreferences ?? {},
+       itemClicks = itemClicks ?? {};
 
   void trackItemInteraction(Item item) {
     itemClicks[item.id] = (itemClicks[item.id] ?? 0) + 1;
