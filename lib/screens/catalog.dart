@@ -15,57 +15,59 @@ class Catalog extends StatefulWidget {
 }
 
 class CatalogState extends State<Catalog> {
-  static bool _isLoading = true;
+  static final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(true);
   static List<Widget> _itemList = [];
 
   @override
   void initState() {
     super.initState();
-    _initializeItems();
+    ItemService.isFiltering.addListener(_onFilteringChanged);
   }
 
-  static void changeCatalog(String? searchQuery, String? category) {
-    _isLoading = true;
+  static void changeContent(String? searchQuery, String? selectedCategory) {
+    _isLoading.value = true;
+
     String currentRoute = '';
     MyAppState.navigatorKey.currentState?.popUntil((route) {
       currentRoute = route.settings.name ?? '';
       return true;
     });
-    ItemService.selectedCategory = category;
-    ItemService.searchQuery = searchQuery ?? '';
+
     if (currentRoute != '/catalog') {
-      MyAppState.navigatorKey.currentState
-          ?.pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
+      MyAppState.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        '/',
+        (Route<dynamic> route) => false,
+      );
       MyAppState.navigatorKey.currentState?.pushNamed('/catalog');
-    } else {
-      if (!ItemService.isLoading.value) {
-        ItemService.filterItems();
-      } else {
-        ItemService.isLoading.addListener(() => ItemService.filterItems());
-      }
     }
+
+    if (!ItemService.isLoading.value) {
+      _initializeItems(searchQuery, selectedCategory);
+    } else {
+      ItemService.isLoading.addListener(() {
+        _initializeItems(searchQuery, selectedCategory);
+        ItemService.isLoading.removeListener(() {
+          _initializeItems(searchQuery, selectedCategory);
+        });
+      });
+    }
+
     if (ItemService.selectedCategory != 'for_you' && ItemService.selectedCategory != null) {
       ItemService.trackCategoryView(ItemService.selectedCategory!);
     }
   }
 
-  void _initializeItems() {
-    if (!ItemService.isLoading.value) {
-      _applyFilters();
-    } else {
-      ItemService.isLoading.addListener(() {
-        if (!ItemService.isLoading.value) {
-          _applyFilters();
-          ItemService.isLoading.removeListener(_initializeItems);
-        }
-      });
-    }
-  }
-
-  void _applyFilters() {
-    ItemService.isFiltering.addListener(_onFilteringChanged);
+  static void _initializeItems(String? searchQuery, String? selectedCategory) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ItemService.filterItems();
+      if (!ItemService.isLoading.value) {
+        if (searchQuery != null) {
+          ItemService.getItemsBySearchQuery(searchQuery);
+        } else if (selectedCategory == 'for_you') {
+          ItemService.getRecommendedItems(false);
+        } else if (selectedCategory != null) {
+          ItemService.getItemsByCategory(selectedCategory);
+        }
+      }
     });
   }
 
@@ -74,7 +76,7 @@ class CatalogState extends State<Catalog> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _itemList = _buildItemList();
-          _isLoading = false;
+          _isLoading.value = false;
         });
       });
     }
@@ -107,28 +109,38 @@ class CatalogState extends State<Catalog> {
           ItemService.filteredItems[itemIndex].name.length < 20 &&
           ItemService.filteredItems[itemIndex + 1].name.length < 19 &&
           ItemService.filteredItems[itemIndex + 2].name.length < 19) {
-        widgets.add(Padding(
-          padding: EdgeInsets.symmetric(vertical: 5.5),
-          child:
-              DisplayThreeSpots(items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 3)),
-        ));
+        widgets.add(
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 5.5),
+            child: DisplayThreeSpots(
+              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 3),
+            ),
+          ),
+        );
         itemIndex += 3;
         threeSpots--;
         currentThreeSpots = 0;
         firstThreeSpots = false;
       } else if (itemIndex + 2 <= itemCount) {
-        widgets.add(Padding(
+        widgets.add(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 5.5),
             child: DisplayTwoSpots(
-                items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 2))));
+              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 2),
+            ),
+          ),
+        );
         itemIndex += 2;
         currentThreeSpots++;
       } else {
-        widgets.add(Padding(
-          padding: EdgeInsets.symmetric(vertical: 5.5),
-          child:
-              DisplayTwoSpots(items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 1)),
-        ));
+        widgets.add(
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 5.5),
+            child: DisplayTwoSpots(
+              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 1),
+            ),
+          ),
+        );
         itemIndex++;
         currentThreeSpots++;
       }
@@ -139,47 +151,50 @@ class CatalogState extends State<Catalog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: const Color(0xFFFFFFFF),
-        body: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              child: Text(
-                ItemService.selectedCategory != null
-                    ? ItemService.selectedCategory == 'for_you'
+      backgroundColor: const Color(0xFFFFFFFF),
+      body: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            child: Text(
+              ItemService.selectedCategory != null
+                  ? ItemService.selectedCategory == 'for_you'
                         ? "For You"
                         : ItemService.selectedCategory![0].toUpperCase() +
-                            ItemService.selectedCategory!.substring(1)
-                    : "\"${ItemService.searchQuery}\"",
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF000000),
-                ),
+                              ItemService.selectedCategory!.substring(1)
+                  : "\"${ItemService.searchQuery}\"",
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF000000),
               ),
             ),
-            Expanded(
-              child: _isLoading
-                  ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                  : SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 13),
-                        child: Column(
-                          children: _itemList,
-                        ),
-                      ),
-                    ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: ValueListenableBuilder<bool>(
+                valueListenable: _isLoading,
+                builder: (context, isLoading, child) {
+                  return isLoading
+                      ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
+                      : Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 13),
+                          child: Column(children: _itemList),
+                        );
+                },
+              ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   void dispose() {
-    ItemService.isLoading.removeListener(_initializeItems);
     ItemService.isFiltering.removeListener(_onFilteringChanged);
     super.dispose();
   }

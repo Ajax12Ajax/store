@@ -22,13 +22,13 @@ class HomeState extends State<Home> {
   void initState() {
     super.initState();
     if (!ItemService.isLoading.value) {
-      _onLoadingChanged();
+      _onLoadingFinish();
     } else {
-      ItemService.isLoading.addListener(_onLoadingChanged);
+      ItemService.isLoading.addListener(_onLoadingFinish);
     }
   }
 
-  Future<void> _onLoadingChanged() async {
+  Future<void> _onLoadingFinish() async {
     if (!ItemService.isLoading.value) {
       setState(() {
         _isLoading = true;
@@ -74,7 +74,7 @@ class HomeState extends State<Home> {
                             maxWidth: 43,
                             maxHeight: 16,
                             onPressed: () {
-                              CatalogState.changeCatalog(null, 'for_you');
+                              CatalogState.changeContent(null, 'for_you');
                             },
                           ),
                         ],
@@ -224,7 +224,7 @@ class HomeState extends State<Home> {
 
   @override
   void dispose() {
-    ItemService.isLoading.removeListener(_onLoadingChanged);
+    ItemService.isLoading.removeListener(_onLoadingFinish);
     super.dispose();
   }
 }

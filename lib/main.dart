@@ -5,12 +5,12 @@ import 'package:store/layout/favorites.dart';
 import 'package:store/layout/header_bar.dart';
 import 'package:store/screens/catalog.dart';
 import 'package:store/screens/home.dart';
+import 'package:store/screens/loading.dart';
 import 'package:store/screens/product.dart';
-import 'package:store/services/item_service.dart';
 import 'package:store/widgets/floating_action_buttons.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Loading());
 }
 
 class MyApp extends StatefulWidget {
@@ -21,9 +21,7 @@ class MyApp extends StatefulWidget {
 }
 
 /*
-zrobić porządek
-loading screem
-zrobić mapy
+zrobić porządek(popatrzeć czy napewno potrzeba stateful widgetów)
  */
 
 class MyAppState extends State<MyApp> {
@@ -34,7 +32,6 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    ItemService.loadItems();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       CartState.controller.addStatusListener(_handleAnimationStatus);
       FavoritesState.controller.addStatusListener(_handleAnimationStatus);
@@ -60,39 +57,41 @@ class MyAppState extends State<MyApp> {
         backgroundColor: const Color(0xFFFFFFFF),
         appBar: HeaderBar(),
         floatingActionButton: FloatingActionButtons(),
-        body: Stack(children: [
-          MaterialApp(
-            debugShowCheckedModeBanner: false,
-            navigatorKey: navigatorKey,
-            initialRoute: '/',
-            routes: {
-              '/': (context) => Home(),
-              '/product': (context) {
-                final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-                return Product(item: args['item']);
+        body: Stack(
+          children: [
+            MaterialApp(
+              debugShowCheckedModeBanner: false,
+              navigatorKey: navigatorKey,
+              initialRoute: '/',
+              routes: {
+                '/': (context) => Home(),
+                '/product': (context) {
+                  final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+                  return Product(item: args['item']);
+                },
+                '/catalog': (context) => Catalog(),
               },
-              '/catalog': (context) => Catalog(),
-            },
-          ),
-          Visibility(
-            visible: _visible,
-            child: GestureDetector(
-              onTap: () {
-                CategoriesMenuState.controller.reverse();
-                FavoritesState.controller.reverse();
-                CartState.controller.reverse();
-              },
-              child: Container(
-                width: double.infinity,
-                height: double.infinity,
-                color: Colors.transparent,
+            ),
+            Visibility(
+              visible: _visible,
+              child: GestureDetector(
+                onTap: () {
+                  CategoriesMenuState.controller.reverse();
+                  FavoritesState.controller.reverse();
+                  CartState.controller.reverse();
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  color: Colors.transparent,
+                ),
               ),
             ),
-          ),
-          CategoriesMenu(),
-          Cart(),
-          Favorites(),
-        ]),
+            CategoriesMenu(),
+            Cart(),
+            Favorites(),
+          ],
+        ),
       ),
     );
   }
