@@ -108,7 +108,7 @@ class ListElementState extends State<ListElement> {
                         setState(() {
                           if (widget.listItem.quantity > 1) {
                             widget.listItem.quantity--;
-                            CartState.items.notifyListeners();
+                            CartState.items.value = List.from(CartState.items.value);
                           }
                         });
                         // Handle back button press
@@ -133,7 +133,7 @@ class ListElementState extends State<ListElement> {
                       onPressed: () {
                         setState(() {
                           widget.listItem.quantity++;
-                          CartState.items.notifyListeners();
+                          CartState.items.value = List.from(CartState.items.value);
                         });
                         // Handle back button press
                       },
@@ -151,9 +151,7 @@ class ListElementState extends State<ListElement> {
               maxWidth: 24,
               maxHeight: 38,
               onPressed: () {
-                CartState.items.value.remove(widget.listItem);
-                CartState.items.notifyListeners();
-                // Handle back button press
+                CartState.items.value = List.from(CartState.items.value)..remove(widget.listItem);
               },
             ),
           ],

@@ -22,9 +22,8 @@ class CartState extends State<Cart> with SingleTickerProviderStateMixin {
       final existingItem = items.value.firstWhere((element) => element.item.id == item.id);
       existingItem.quantity++;
     } else {
-      items.value.add(listItem);
+      items.value = List.from(items.value)..add(listItem);
     }
-    items.notifyListeners();
   }
 
   double _calculateTotalPrice() =>
