@@ -91,7 +91,27 @@ class _ProductState extends State<Product> {
                 children: [
                   AspectRatio(
                     aspectRatio: 145 / 134,
-                    child: Image(image: AssetImage(widget.item.image), fit: BoxFit.cover),
+                    child: Image.network(
+                      "http://localhost:3000/images/image-1754902715750-204338428.png",
+                      fit: BoxFit.cover,
+                      headers: {'Cache-Control': 'no-cache, no-store, must-revalidate, private, max-age=0'},
+                      loadingBuilder: (context, child, progress) {
+                        if (progress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: progress.expectedTotalBytes != null
+                                ? progress.cumulativeBytesLoaded /
+                                progress.expectedTotalBytes!
+                                : null,
+                          ),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(Icons.broken_image, size: 50),
+                        );
+                      },
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(9),
