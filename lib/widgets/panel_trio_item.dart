@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:store/screens/product.dart';
+import 'package:store/widgets/product_image.dart';
 
 import '../models/item.dart';
 
@@ -39,7 +41,7 @@ class DisplayThreeSpots extends StatelessWidget {
       flex: 157,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/product', arguments: {'item': item});
+          ProductState.showProduct(context, item);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -56,12 +58,7 @@ class DisplayThreeSpots extends StatelessWidget {
                   aspectRatio: 145 / 134,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image(
-                      image: AssetImage(item.image),
-                      fit: BoxFit.cover,
-                      height: 134,
-                      width: 145,
-                    ),
+                    child: ProductImage(item.id, 134, 145, BoxFit.cover),
                   ),
                 ),
                 SizedBox(height: 6),
@@ -115,7 +112,7 @@ class DisplayThreeSpots extends StatelessWidget {
       flex: 1,
       child: GestureDetector(
         onTap: () {
-          Navigator.pushNamed(context, '/product', arguments: {'item': item});
+          ProductState.showProduct(context, item);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -130,7 +127,7 @@ class DisplayThreeSpots extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image(image: AssetImage(item.image), fit: BoxFit.cover),
+                  child: ProductImage(item.id, null, null, BoxFit.cover),
                 ),
                 SizedBox(width: 6),
                 Expanded(

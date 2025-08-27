@@ -4,6 +4,7 @@ import 'package:store/models/item.dart';
 import 'package:store/services/item_service.dart';
 import 'package:store/widgets/icon_button.dart';
 import 'package:store/widgets/panel_pair_item.dart';
+import 'package:store/widgets/product_image.dart';
 
 class Product extends StatefulWidget {
   final Item item;
@@ -11,14 +12,27 @@ class Product extends StatefulWidget {
   const Product({super.key, required this.item});
 
   @override
-  State<Product> createState() => _ProductState();
+  State<Product> createState() => ProductState();
 }
 
-class _ProductState extends State<Product> {
+class ProductState extends State<Product> {
+  late final ItemService itemService;
+  List<Item> _similarItems = [];
+
   @override
   void initState() {
     super.initState();
+    itemService = ItemService();
+    loadSimilarItems();
     ItemService.trackItemClick(widget.item);
+  }
+
+  static void showProduct(BuildContext context, Item item) {
+    Navigator.pushNamed(context, '/product', arguments: {'item': item});
+  }
+
+  Future<void> loadSimilarItems() async {
+    _similarItems = await itemService.loadSimilarItems(widget.item.id);
   }
 
   @override
@@ -91,27 +105,7 @@ class _ProductState extends State<Product> {
                 children: [
                   AspectRatio(
                     aspectRatio: 145 / 134,
-                    child: Image.network(
-                      "http://localhost:3000/images/image-1754902715750-204338428.png",
-                      fit: BoxFit.cover,
-                      headers: {'Cache-Control': 'no-cache, no-store, must-revalidate, private, max-age=0'},
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded /
-                                progress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Icon(Icons.broken_image, size: 50),
-                        );
-                      },
-                    ),
+                    child: ProductImage(widget.item.id, null, null, BoxFit.cover),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(9),
@@ -304,12 +298,33 @@ class _ProductState extends State<Product> {
                           ),
                         ),
                         SizedBox(height: 10),
-                        ValueListenableBuilder<bool>(
-                          valueListenable: ItemService.isLoading,
-                          builder: (context, isLoading, child) {
-                            return isLoading
-                                ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                                : DisplayTwoSpots(items: ItemService.getSimilarItems(widget.item));
+                        ValueListenableBuilder<ConnectionState>(
+                          valueListenable: itemService.loadingState,
+                          builder: (context, loadingState, _) {
+                            if (loadingState == ConnectionState.done && _similarItems.isNotEmpty) {
+                              return DisplayTwoSpots(items: _similarItems);
+                            } else if (loadingState == ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(color: Color(0xFF000000)),
+                              );
+                            }
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error_outline, size: 48, color: Color(0xFF000000)),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'Failed to load products',
+                                    style: TextStyle(
+                                      fontFamily: 'Outfit',
+                                      fontSize: 16,
+                                      color: Color(0xFF000000),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
                           },
                         ),
                       ],

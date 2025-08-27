@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:store/models/item.dart';
-import 'package:store/screens/catalog.dart';
 import 'package:store/widgets/panel_pair_item.dart';
 import 'package:store/widgets/panel_trio_item.dart';
 
@@ -14,28 +13,25 @@ class Home extends StatefulWidget {
   State<Home> createState() => HomeState();
 }
 
+bool firstBuild = true;
+
 class HomeState extends State<Home> {
-  late List<Item> _items;
-  bool _isLoading = true;
+  static final ItemService itemService = ItemService();
+
+  static late List<Item> forYouItems;
+  static late List<Item> _newArrivalItems;
 
   @override
   void initState() {
     super.initState();
-    if (!ItemService.isLoading.value) {
-      _onLoadingFinish();
-    } else {
-      ItemService.isLoading.addListener(_onLoadingFinish);
-    }
+    print("HomeState initialized");
   }
 
-  Future<void> _onLoadingFinish() async {
-    if (!ItemService.isLoading.value) {
-      setState(() {
-        _isLoading = true;
-        _items = ItemService.getRecommendedItems(true);
-        _isLoading = false;
-      });
-    }
+  static Future loadHomeData() async {
+    print("Loading home page...");
+    forYouItems = await itemService.getRecommendationsPreview();
+    print('For You Items: ${forYouItems.map((item) => '${item.name}: ${item.price}zł').toList()}');
+    _newArrivalItems = await itemService.loadNewArrivalItems();
   }
 
   @override
@@ -46,11 +42,7 @@ class HomeState extends State<Home> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 13),
           child: Column(
-            children: [
-              _buildForYouSection(),
-              _buildOffersSection(),
-              _buildNewArrivalsSection(),
-            ],
+            children: [_buildForYouSection(), _buildOffersSection(), _buildNewArrivalsSection()],
           ),
         ),
       ),
@@ -85,16 +77,40 @@ class HomeState extends State<Home> {
                   maxWidth: 43,
                   maxHeight: 16,
                   onPressed: () {
-                    CatalogState.changeContent(null, 'for_you');
+                    //CatalogState.changeContent(null, 'for_you');
                   },
                 ),
               ],
             ),
           ),
           SizedBox(height: 14),
-          _isLoading
-              ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-              : DisplayThreeSpots(items: _items),
+          ValueListenableBuilder<ConnectionState>(
+            valueListenable: itemService.loadingState,
+            builder: (context, loadingState, _) {
+              if (loadingState == ConnectionState.done && forYouItems.isNotEmpty) {
+                return DisplayThreeSpots(items: forYouItems);
+              } else if (loadingState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator(color: Color(0xFF000000)));
+              }
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Color(0xFF000000)),
+                    SizedBox(height: 16),
+                    Text(
+                      'Failed to load products',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 16,
+                        color: Color(0xFF000000),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -123,10 +139,7 @@ class HomeState extends State<Home> {
                   Container(
                     padding: const EdgeInsets.only(bottom: 42, right: 30),
                     alignment: Alignment.topRight,
-                    child: Image(
-                      image: AssetImage("assets/images/bag.png"),
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image(image: AssetImage("assets/images/bag.png"), fit: BoxFit.cover),
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 16, top: 15),
@@ -165,9 +178,7 @@ class HomeState extends State<Home> {
                       style: TextButton.styleFrom(
                         foregroundColor: const Color(0xFF000000),
                         backgroundColor: const Color(0xFFFFFFFF),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: () {},
                       child: Padding(
@@ -217,33 +228,20 @@ class HomeState extends State<Home> {
               ],
             ),
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: ItemService.isLoading,
-            builder: (context, isLoading, child) {
-              return isLoading
-                  ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                  : Column(
-                children: [
-                  SizedBox(height: 14),
-                  DisplayTwoSpots(items: ItemService.items.sublist(0, 2)),
-                  SizedBox(height: 11),
-                  DisplayTwoSpots(items: ItemService.items.sublist(2, 4)),
-                  SizedBox(height: 11),
-                  DisplayThreeSpots(items: ItemService.items.sublist(15, 18)),
-                  SizedBox(height: 11),
-                  DisplayTwoSpots(items: ItemService.items.sublist(7, 9)),
-                ],
-              );
-            },
+          Column(
+            children: [
+              SizedBox(height: 14),
+              DisplayTwoSpots(items: _newArrivalItems.sublist(0, 2)),
+              SizedBox(height: 11),
+              DisplayTwoSpots(items: _newArrivalItems.sublist(2, 4)),
+              SizedBox(height: 11),
+              DisplayThreeSpots(items: _newArrivalItems.sublist(4, 7)),
+              SizedBox(height: 11),
+              DisplayTwoSpots(items: _newArrivalItems.sublist(7, 9)),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    ItemService.isLoading.removeListener(_onLoadingFinish);
-    super.dispose();
   }
 }

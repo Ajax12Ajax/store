@@ -23,6 +23,8 @@ class ListElementState extends State<ListElement> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            Center(child: Icon(Icons.broken_image, size: 50)),
+            /*
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image(
@@ -32,6 +34,7 @@ class ListElementState extends State<ListElement> {
                 width: 56,
               ),
             ),
+             */
             SizedBox(width: 9),
             Container(
               height: 53,
@@ -111,7 +114,6 @@ class ListElementState extends State<ListElement> {
                             CartState.items.value = List.from(CartState.items.value);
                           }
                         });
-                        // Handle back button press
                       },
                     ),
                     Text(
@@ -135,7 +137,6 @@ class ListElementState extends State<ListElement> {
                           widget.listItem.quantity++;
                           CartState.items.value = List.from(CartState.items.value);
                         });
-                        // Handle back button press
                       },
                     ),
 

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:store/models/list_item.dart';
 
-import '../services/item_service.dart';
 import '../widgets/icon_button.dart';
-import '../widgets/list_element.dart';
 
 class Favorites extends StatefulWidget {
   const Favorites({super.key});
@@ -99,31 +96,7 @@ class FavoritesState extends State<Favorites> with SingleTickerProviderStateMixi
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
-                      height: 169,
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: ItemService.isLoading,
-                        builder: (context, isLoading, child) {
-                          return isLoading
-                              ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                              : SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      ListElement(listItem: ListItem(item: ItemService.items[0])),
-                                      SizedBox(height: 10),
-                                      ListElement(
-                                        listItem: ListItem(item: ItemService.items[6], quantity: 2),
-                                      ),
-                                      SizedBox(height: 10),
-                                      ListElement(listItem: ListItem(item: ItemService.items[10])),
-                                      SizedBox(height: 10),
-                                      ListElement(listItem: ListItem(item: ItemService.items[4])),
-                                    ],
-                                  ),
-                                );
-                        },
-                      ),
+                      height: 169
                     ),
                   ),
                 ],

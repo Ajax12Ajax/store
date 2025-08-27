@@ -19,6 +19,8 @@ class HeaderBar extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixin {
+  late final CatalogState catalogState;
+
   late AnimationController _searchBarController;
   late Animation<double> _widthAnimation;
   late Animation<Color?> _colorAnimation;
@@ -58,6 +60,7 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
   @override
   void initState() {
     super.initState();
+    catalogState = CatalogState();
     _animationController();
   }
 
@@ -109,6 +112,8 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
                             onTapDown: (_) {},
                             onTapUp: (_) {
                               setState(() {
+                                FavoritesState.controller.reverse();
+                                CartState.controller.reverse();
                                 CategoriesMenuState.controller.reverse();
                                 if (MyAppState.navigatorKey.currentState?.canPop() ?? false) {
                                   MyAppState.navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -183,7 +188,7 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
                                                   ),
                                                 ),
                                                 onSubmitted: (value) {
-                                                  CatalogState.changeContent(value, null);
+                                                  catalogState.showSearchQueryItems(value);
                                                 },
                                               ),
                                             ),

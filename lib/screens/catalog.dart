@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:store/main.dart';
+import 'package:store/models/item.dart';
 import 'package:store/widgets/panel_pair_item.dart';
 import 'package:store/widgets/panel_trio_item.dart';
 
@@ -15,77 +16,46 @@ class Catalog extends StatefulWidget {
 }
 
 class CatalogState extends State<Catalog> {
-  static final ValueNotifier<bool> _isLoading = ValueNotifier<bool>(true);
-  static List<Widget> _itemList = [];
+  static late ItemService _itemService;
+  static String _label = '';
+  static List<Item> _catalogItems = [];
 
-  @override
-  void initState() {
-    super.initState();
-    ItemService.isFiltering.addListener(_onFilteringChanged);
-  }
 
-  static void changeContent(String? searchQuery, String? selectedCategory) {
-    _isLoading.value = true;
-
+  void showCategoryItems(int id) async {
     String currentRoute = '';
     MyAppState.navigatorKey.currentState?.popUntil((route) {
       currentRoute = route.settings.name ?? '';
       return true;
     });
-
-    if (currentRoute != '/catalog') {
-      MyAppState.navigatorKey.currentState?.pushNamedAndRemoveUntil(
-        '/',
-        (Route<dynamic> route) => false,
-      );
-      MyAppState.navigatorKey.currentState?.pushNamed('/catalog');
+    final label = ItemService.categories.firstWhere((category) => category.id == id).category;
+    if (_label != label || currentRoute != '/catalog') {
+      _label = label;
+      _itemService = ItemService();
+      navigateToCatalog();
+      _catalogItems = await _itemService.loadCategoryItems(id);
     }
-
-    if (!ItemService.isLoading.value) {
-      _initializeItems(searchQuery, selectedCategory);
-    } else {
-      ItemService.isLoading.addListener(() {
-        _initializeItems(searchQuery, selectedCategory);
-        ItemService.isLoading.removeListener(() {
-          _initializeItems(searchQuery, selectedCategory);
-        });
-      });
-    }
-
-    if (ItemService.selectedCategory != 'for_you' && ItemService.selectedCategory != null) {
-      ItemService.trackCategoryView(ItemService.selectedCategory!);
-    }
+    ItemService.trackCategoryView(_label);
   }
 
-  static void _initializeItems(String? searchQuery, String? selectedCategory) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!ItemService.isLoading.value) {
-        if (searchQuery != null) {
-          ItemService.getItemsBySearchQuery(searchQuery);
-        } else if (selectedCategory == 'for_you') {
-          ItemService.getRecommendedItems(false);
-        } else if (selectedCategory != null) {
-          ItemService.getItemsByCategory(selectedCategory);
-        }
-      }
-    });
+  void showSearchQueryItems(String query) async {
+    _label = "\"$query\"";
+    _itemService = ItemService();
+    navigateToCatalog();
+    _catalogItems = await _itemService.loadSearchQueryItems(query);
   }
 
-  void _onFilteringChanged() {
-    if (!ItemService.isFiltering.value && mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _itemList = _buildItemList();
-          _isLoading.value = false;
-        });
-      });
-    }
+  void navigateToCatalog() {
+    MyAppState.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+      '/catalog',
+      (route) => route.settings.name == '/',
+    );
   }
 
-  static List<Widget> _buildItemList() {
+
+  List<Widget> _buildItemList(List<Item> items) {
     List<Widget> widgets = [];
     int itemIndex = 0;
-    int itemCount = ItemService.filteredItems.length;
+    int itemCount = items.length;
 
     double threeSpots = 0;
     double currentThreeSpots = 0;
@@ -106,15 +76,13 @@ class CatalogState extends State<Catalog> {
           threeSpots > 0 &&
           (Random().nextBool() || currentThreeSpots >= spacing + 1) &&
           (currentThreeSpots >= spacing || firstThreeSpots) &&
-          ItemService.filteredItems[itemIndex].name.length < 20 &&
-          ItemService.filteredItems[itemIndex + 1].name.length < 19 &&
-          ItemService.filteredItems[itemIndex + 2].name.length < 19) {
+          items[itemIndex].name.length < 20 &&
+          items[itemIndex + 1].name.length < 19 &&
+          items[itemIndex + 2].name.length < 19) {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayThreeSpots(
-              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 3),
-            ),
+            child: DisplayThreeSpots(items: items.sublist(itemIndex, itemIndex + 3)),
           ),
         );
         itemIndex += 3;
@@ -125,9 +93,7 @@ class CatalogState extends State<Catalog> {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayTwoSpots(
-              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 2),
-            ),
+            child: DisplayTwoSpots(items: items.sublist(itemIndex, itemIndex + 2)),
           ),
         );
         itemIndex += 2;
@@ -136,9 +102,7 @@ class CatalogState extends State<Catalog> {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayTwoSpots(
-              items: ItemService.filteredItems.sublist(itemIndex, itemIndex + 1),
-            ),
+            child: DisplayTwoSpots(items: items.sublist(itemIndex, itemIndex + 1)),
           ),
         );
         itemIndex++;
@@ -148,54 +112,64 @@ class CatalogState extends State<Catalog> {
     return widgets;
   }
 
+
+  List<Widget> _itemList = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            child: Text(
-              ItemService.selectedCategory != null
-                  ? ItemService.selectedCategory == 'for_you'
-                        ? "For You"
-                        : ItemService.selectedCategory![0].toUpperCase() +
-                              ItemService.selectedCategory!.substring(1)
-                  : "\"${ItemService.searchQuery}\"",
-              textAlign: TextAlign.left,
-              style: const TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF000000),
-              ),
+      body: ValueListenableBuilder<ConnectionState>(
+        valueListenable: _itemService.loadingState,
+        builder: (context, loadingState, _) {
+          if (loadingState == ConnectionState.done) {
+            if (_itemList.isEmpty) _itemList = _buildItemList(_catalogItems);
+            return Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  child: Text(
+                    _label,
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(
+                      fontFamily: 'Outfit',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 13),
+                      child: Column(children: _itemList),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else if (loadingState == ConnectionState.waiting) {
+            _itemList = [];
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF000000)));
+          }
+          _itemList = [];
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 48, color: Color(0xFF000000)),
+                SizedBox(height: 16),
+                Text(
+                  'Failed to load products',
+                  style: TextStyle(fontFamily: 'Outfit', fontSize: 16, color: Color(0xFF000000)),
+                ),
+              ],
             ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: ValueListenableBuilder<bool>(
-                valueListenable: _isLoading,
-                builder: (context, isLoading, child) {
-                  return isLoading
-                      ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 13),
-                          child: Column(children: _itemList),
-                        );
-                },
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    ItemService.isFiltering.removeListener(_onFilteringChanged);
-    super.dispose();
   }
 }

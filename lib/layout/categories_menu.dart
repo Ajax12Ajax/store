@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:store/services/item_service.dart';
+import 'package:store/widgets/menu_button.dart';
 
 import '../screens/catalog.dart';
-import '../widgets/text_button.dart';
 
 class CategoriesMenu extends StatefulWidget {
   const CategoriesMenu({super.key});
@@ -11,6 +12,8 @@ class CategoriesMenu extends StatefulWidget {
 }
 
 class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProviderStateMixin {
+  late CatalogState catalogState = catalogState;
+
   static late AnimationController controller;
   late Animation<double> _distanceAnimation;
 
@@ -28,6 +31,7 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
+    catalogState = CatalogState();
     _animationController();
   }
 
@@ -48,115 +52,64 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
           borderRadius: BorderRadius.circular(24),
         ),
         child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 19, horizontal: 17),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Categories",
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF000000),
+          padding: EdgeInsets.symmetric(vertical: 19, horizontal: 17),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Categories",
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF000000),
+                  height: 1,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 22, bottom: 12),
+                child: PreferredSize(
+                  preferredSize: const Size.fromHeight(0.1),
+                  child: Container(
+                    color: const Color(0xFF939393),
                     height: 1,
+                    margin: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 22, bottom: 12),
-                  child: PreferredSize(
-                    preferredSize: const Size.fromHeight(0.1),
-                    child: Container(
-                      color: const Color(0xFF939393),
-                      height: 1,
-                      margin: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 3),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    MenuButton(
+                      text: "For You",
+                      size: 19,
+                      weight: FontWeight.w500,
+                      onPressed: () {
+                        controller.reverse();
+                        //CatalogState.changeContent(null, 'for_you');
+                      },
                     ),
-                  ),
+                    ...ItemService.categories.map(
+                      (category) => MenuButton(
+                        text: category.category,
+                        size: 18,
+                        weight: FontWeight.w400,
+                        onPressed: () {
+                          controller.reverse();
+                          catalogState.showCategoryItems(category.id);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 3),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextButton(
-                        text: "For You",
-                        size: 19,
-                        weight: FontWeight.w500,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 65,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 'for_you');
-                        },
-                      ),
-                      CustomTextButton(
-                        text: "Pants",
-                        size: 18,
-                        weight: FontWeight.w400,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 47,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 'pants');
-                        },
-                      ),
-                      CustomTextButton(
-                        text: "Shorts",
-                        size: 18,
-                        weight: FontWeight.w400,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 53,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 'shorts');
-                        },
-                      ),
-                      CustomTextButton(
-                        text: "T-shirts",
-                        size: 18,
-                        weight: FontWeight.w400,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 64,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 't-shirts');
-                        },
-                      ),
-                      CustomTextButton(
-                        text: "Sweatshirts",
-                        size: 18,
-                        weight: FontWeight.w400,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 96,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 'sweatshirts');
-                        },
-                      ),
-                      CustomTextButton(
-                        text: "Hats",
-                        size: 18,
-                        weight: FontWeight.w400,
-                        fontColor: const Color(0xFF000000),
-                        maxWidth: 39,
-                        maxHeight: 39,
-                        onPressed: () {
-                          controller.reverse();
-                          CatalogState.changeContent(null, 'hats');
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            )),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

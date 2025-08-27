@@ -1,70 +1,107 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:store/models/category.dart';
+import 'package:store/screens/home.dart';
+import 'package:store/services/constants.dart';
 import 'package:store/services/user_preferences.dart';
 
 import '../models/item.dart';
 
 class ItemService {
-  static final ValueNotifier<bool> isLoading = ValueNotifier<bool>(true);
-  static final ValueNotifier<bool> isFiltering = ValueNotifier<bool>(false);
-
-  static List<Item> items = [];
-  static List<Item> filteredItems = [];
-
-  static String? searchQuery;
-  static String? selectedCategory;
-
-  static Future<List<Item>> loadItems() async {
-    isLoading.value = true;
-    try {
-      final String response = await rootBundle.loadString('assets/items.json');
-      final data = await json.decode(response) as List;
-      return items = data.map((item) => Item.fromJson(item)).toList();
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  static Future<List<Item>> getItemsByCategory(String category) async {
-    isFiltering.value = true;
-    try {
-      searchQuery = null;
-      selectedCategory = category;
-      return filteredItems = items.where((item) => item.category == category).toList();
-    } finally {
-      isFiltering.value = false;
-    }
-  }
-
-  static Future<List<Item>> getItemsBySearchQuery(String query) async {
-    isFiltering.value = true;
-    try {
-      searchQuery = query;
-      selectedCategory = null;
-      return filteredItems = items.where((item) {
-        final matchesQuery =
-            query.isEmpty ||
-            item.name.toLowerCase().contains(query.toLowerCase()) ||
-            item.brand.toLowerCase().contains(query.toLowerCase()) ||
-            item.category.toLowerCase().contains(query.toLowerCase()) ||
-            item.color.toLowerCase().contains(query.toLowerCase()) ||
-            item.fit.toLowerCase().contains(query.toLowerCase()) ||
-            item.materials.any((material) => material.toLowerCase().contains(query.toLowerCase()));
-
-        final matchesCategory = selectedCategory == null || item.category == selectedCategory;
-
-        return matchesQuery && matchesCategory;
-      }).toList();
-    } finally {
-      isFiltering.value = false;
-    }
-  }
-
+  static List<Category> categories = [];
+  final ValueNotifier<ConnectionState> loadingState = ValueNotifier<ConnectionState>(
+    ConnectionState.none,
+  );
   static final UserPreferences userPrefs = UserPreferences();
 
+  static Future loadCategories() async {
+    try {
+      final response = await http.get(Uri.parse('${Constants.BASE_URL}/categories'));
+      if (response.statusCode == 200) {
+        final data = await json.decode(response.body) as List;
+        categories = data.map((category) => Category.fromJson(category)).toList();
+      } else {
+        print('Categories load error: ${response.statusCode}');
+        return;
+      }
+    } catch (e) {
+      print('Server error: $e');
+      return;
+    }
+  }
+
+
+  Future<List<Item>> getRecommendationsPreview() async {
+    print('Fetching recommendations preview...');
+    final response = await _loadItems(
+      http.post(
+        Uri.parse('${Constants.BASE_URL}/recommendations/preview'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userPrefs.buildRequest(3)),
+      ),
+    );
+    print(
+      'in item service For You Items: ${response.map((item) => '${item.name}: ${item.price}zł').toList()}',
+    );
+    return response;
+  }
+
+  Future<List<Item>> getFullRecommendations({int limit = 20}) async {
+    return await _loadItems(
+      http.post(
+        Uri.parse('${Constants.BASE_URL}/recommendations/full'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userPrefs.buildRequest(limit)),
+      ),
+    );
+  }
+
+  Future<List<Item>> loadNewArrivalItems() {
+    return _loadItems(
+      http.get(
+        Uri.parse(
+          '${Constants.BASE_URL}/product/482193,927415,604238,150982,398712,120934,347829,238671,715093',
+        ),
+      ),
+    );
+  }
+
+  Future<List<Item>> loadCategoryItems(int categoryId) {
+    return _loadItems(http.get(Uri.parse('${Constants.BASE_URL}/category/$categoryId')));
+  }
+
+  Future<List<Item>> loadSearchQueryItems(String query) {
+    return _loadItems(http.get(Uri.parse('${Constants.BASE_URL}/search?q=$query')));
+  }
+
+  Future<List<Item>> loadSimilarItems(int itemId) {
+    return _loadItems(http.get(Uri.parse('${Constants.BASE_URL}/product/$itemId/similar')));
+  }
+
+  Future<List<Item>> _loadItems(final http) async {
+    loadingState.value = ConnectionState.waiting;
+    try {
+      final response = await http;
+      if (response.statusCode == 200) {
+        final data = await json.decode(response.body) as List;
+        final list = data.map((item) => Item.fromJson(item)).toList();
+        loadingState.value = ConnectionState.done;
+        return list;
+      } else {
+        loadingState.value = ConnectionState.none;
+        print('Product load error: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      loadingState.value = ConnectionState.none;
+      print('Server error: $e');
+      return [];
+    }
+  }
+
+  /*
   static List<Item> getRecommendedItems(bool thumbnail) {
     isFiltering.value = true;
     try {
@@ -101,35 +138,20 @@ class ItemService {
       isFiltering.value = false;
     }
   }
+   */
+
+  static Future<void> updateRecommendations() async {
+    HomeState.forYouItems = await HomeState.itemService.getRecommendationsPreview();
+    // it can't use HomeState
+  }
 
   static void trackItemClick(Item item) {
-    userPrefs.trackItemInteraction(item);
+    //userPrefs.trackItemInteraction(item);
+    //Future.microtask(() => updateRecommendations());
   }
 
   static void trackCategoryView(String category) {
-    userPrefs.trackCategoryVisit(category);
-  }
-
-  static List<Item> getSimilarItems(Item item) {
-    if (items.isEmpty) return [];
-    final scoredItems = items.where((i) => i.id != item.id).map((otherItem) {
-      double score = 0.0;
-      if (otherItem.category == item.category) {
-        score += 4.0;
-      }
-      if (otherItem.color == item.color) {
-        score += 2.0;
-      }
-      score += otherItem.materials.where((m) => item.materials.contains(m)).length * 1.5;
-      if (otherItem.fit == item.fit) {
-        score += 2.0;
-      }
-      score += (userPrefs.categoryVisits[otherItem.category] ?? 0) * 0.1;
-      score += (userPrefs.colorPreferences[otherItem.color] ?? 0) * 0.1;
-      return MapEntry(otherItem, score);
-    }).toList();
-
-    scoredItems.sort((a, b) => b.value.compareTo(a.value));
-    return scoredItems.take(2).map((e) => e.key).toList();
+    //userPrefs.trackCategoryVisit(category);
+    //Future.microtask(() => updateRecommendations());
   }
 }

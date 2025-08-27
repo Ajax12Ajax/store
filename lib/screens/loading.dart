@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:store/main.dart';
+import 'package:store/screens/home.dart';
 import 'package:store/services/item_service.dart';
 import 'package:store/widgets/loading_animation.dart';
 
-class Loading extends StatelessWidget {
+class Loading extends StatefulWidget {
   const Loading({super.key});
 
+  @override
+  State<Loading> createState() => _LoadingState();
+}
+
+class _LoadingState extends State<Loading> {
+  late Future<void> _initFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture = _initializeApp();
+  }
+
   Future<void> _initializeApp() async {
-    await ItemService.loadItems();
-    await Future.delayed(Duration(milliseconds: 1500));
+    await ItemService.loadCategories();
+    await HomeState.loadHomeData();
+    await Future.delayed(const Duration(milliseconds: 1500));
   }
 
   @override
@@ -16,7 +31,7 @@ class Loading extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: FutureBuilder(
-        future: _initializeApp(),
+        future: _initFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(

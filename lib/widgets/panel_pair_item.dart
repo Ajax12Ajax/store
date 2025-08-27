@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:store/screens/product.dart';
+import 'package:store/widgets/product_image.dart';
 
 import '../models/item.dart';
 
@@ -31,7 +33,7 @@ class DisplayTwoSpots extends StatelessWidget {
   Widget _buildPanel(BuildContext context, Item item) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, '/product', arguments: {'item': item});
+        ProductState.showProduct(context, item);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -48,7 +50,7 @@ class DisplayTwoSpots extends StatelessWidget {
                 aspectRatio: 83 / 67,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image(image: AssetImage(item.image), fit: BoxFit.fitWidth),
+                  child: ProductImage(item.id, null, null, BoxFit.fitWidth),
                 ),
               ),
               SizedBox(height: 6),
@@ -63,7 +65,7 @@ class DisplayTwoSpots extends StatelessWidget {
                         fontFamily: 'Outfit',
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF000000),
+                        color: Color(0xFF000000),
                         height: 1,
                       ),
                     ),
@@ -86,7 +88,7 @@ class DisplayTwoSpots extends StatelessWidget {
                   fontFamily: 'Outfit',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF000000),
+                  color: Color(0xFF000000),
                 ),
               ),
             ],

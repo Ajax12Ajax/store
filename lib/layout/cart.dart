@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:store/models/list_item.dart';
 
 import '../models/item.dart';
-import '../services/item_service.dart';
 import '../widgets/icon_button.dart';
 import '../widgets/list_element.dart';
 
@@ -116,32 +115,25 @@ class CartState extends State<Cart> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
                       height: 169,
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: ItemService.isLoading,
-                        builder: (context, isLoading, child) {
-                          return isLoading
-                              ? Center(child: CircularProgressIndicator(color: Color(0xFF000000)))
-                              : ValueListenableBuilder<List<ListItem>>(
-                                  valueListenable: items,
-                                  builder: (context, item, child) {
-                                    return SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          ...items.value.map(
-                                            (item) => Column(
-                                              children: [
-                                                ListElement(listItem: item),
-                                                if (item != items.value.last) SizedBox(height: 10),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                );
+                      child: ValueListenableBuilder<List<ListItem>>(
+                        valueListenable: items,
+                        builder: (context, item, child) {
+                          return SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                ...items.value.map(
+                                  (item) => Column(
+                                    children: [
+                                      ListElement(listItem: item),
+                                      if (item != items.value.last) SizedBox(height: 10),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
                         },
                       ),
                     ),

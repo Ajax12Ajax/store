@@ -23,7 +23,6 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  bool _visible = false;
 
   @override
   void initState() {
@@ -40,18 +39,8 @@ class MyAppState extends State<MyApp> {
       CategoriesMenuState.controller,
     ];
     for (var controller in controllers) {
-      controller.addStatusListener(_handleAnimationStatus);
+      controller.addStatusListener(ExitOverlayState.handleAnimationStatus);
     }
-  }
-
-  void _handleAnimationStatus(AnimationStatus status) {
-    setState(() {
-      if (status == AnimationStatus.forward || status == AnimationStatus.completed) {
-        _visible = true;
-      } else if (status == AnimationStatus.dismissed) {
-        _visible = false;
-      }
-    });
   }
 
   @override
@@ -77,7 +66,7 @@ class MyAppState extends State<MyApp> {
                 '/catalog': (context) => Catalog(),
               },
             ),
-            ExitOverlay(visible: _visible),
+            ExitOverlay(),
             CategoriesMenu(),
             Cart(),
             Favorites(),

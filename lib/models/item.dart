@@ -1,39 +1,36 @@
 class Item {
-  final String id;
+  final int id;
+  final String category;
   final String name;
   final String brand;
   final Dimensions dimensions;
   final List<String> materials;
   final String fit;
   final String color;
-  final String category;
-  final String image;
   final double price;
 
   Item({
     required this.id,
+    required this.category,
     required this.name,
     required this.brand,
     required this.dimensions,
     required this.materials,
     required this.fit,
     required this.color,
-    required this.category,
-    required this.image,
     required this.price,
   });
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['id'],
+      category: json['category'],
       name: json['name'],
       brand: json['brand'],
       dimensions: Dimensions.fromJson(json['dimensions']),
       materials: List<String>.from(json['materials']),
       fit: json['fit'],
       color: json['color'],
-      category: json['category'],
-      image: json['image'],
       price: json['price'].toDouble(),
     );
   }
