@@ -1,4 +1,4 @@
-class Item {
+class Product {
   final int id;
   final String category;
   final String name;
@@ -9,7 +9,7 @@ class Item {
   final String color;
   final double price;
 
-  Item({
+  Product({
     required this.id,
     required this.category,
     required this.name,
@@ -21,8 +21,8 @@ class Item {
     required this.price,
   });
 
-  factory Item.fromJson(Map<String, dynamic> json) {
-    return Item(
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
       id: json['id'],
       category: json['category'],
       name: json['name'],

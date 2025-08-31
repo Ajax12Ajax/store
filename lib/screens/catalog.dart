@@ -2,11 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:store/main.dart';
-import 'package:store/models/item.dart';
-import 'package:store/widgets/panel_pair_item.dart';
-import 'package:store/widgets/panel_trio_item.dart';
+import 'package:store/models/product.dart';
 
-import '../../services/item_service.dart';
+import '../services/products_service.dart';
+import '../widgets/dual_panel.dart';
+import '../widgets/triple_panel.dart';
 
 class Catalog extends StatefulWidget {
   const Catalog({super.key});
@@ -16,32 +16,38 @@ class Catalog extends StatefulWidget {
 }
 
 class CatalogState extends State<Catalog> {
-  static late ItemService _itemService;
+  static late ProductService _productService;
   static String _label = '';
-  static List<Item> _catalogItems = [];
+  static List<Product> _catalogProducts = [];
 
-
-  void showCategoryItems(int id) async {
+  void showCategoryProducts(int id) async {
     String currentRoute = '';
     MyAppState.navigatorKey.currentState?.popUntil((route) {
       currentRoute = route.settings.name ?? '';
       return true;
     });
-    final label = ItemService.categories.firstWhere((category) => category.id == id).category;
+    final label = ProductService.categories.firstWhere((category) => category.id == id).category;
     if (_label != label || currentRoute != '/catalog') {
       _label = label;
-      _itemService = ItemService();
+      _productService = ProductService();
       navigateToCatalog();
-      _catalogItems = await _itemService.loadCategoryItems(id);
+      _catalogProducts = await _productService.loadCategoryProducts(id);
     }
-    ItemService.trackCategoryView(_label);
+    ProductService.trackCategoryView(_label);
   }
 
-  void showSearchQueryItems(String query) async {
+  void showSearchQueryProducts(String query) async {
     _label = "\"$query\"";
-    _itemService = ItemService();
+    _productService = ProductService();
     navigateToCatalog();
-    _catalogItems = await _itemService.loadSearchQueryItems(query);
+    _catalogProducts = await _productService.loadSearchQueryProducts(query);
+  }
+
+  void showForYouProducts() async {
+    _label = "For You";
+    _productService = ProductService();
+    navigateToCatalog();
+    _catalogProducts = await _productService.loadRecommendationsProducts();
   }
 
   void navigateToCatalog() {
@@ -51,79 +57,77 @@ class CatalogState extends State<Catalog> {
     );
   }
 
-
-  List<Widget> _buildItemList(List<Item> items) {
+  List<Widget> _buildProductList(List<Product> products) {
     List<Widget> widgets = [];
-    int itemIndex = 0;
-    int itemCount = items.length;
+    int productIndex = 0;
+    int productCount = products.length;
 
     double threeSpots = 0;
     double currentThreeSpots = 0;
     bool firstThreeSpots = true;
-    if (itemCount % 2 == 0 && itemCount >= 12) {
-      threeSpots += (2 * (itemCount / 12 - (itemCount / 12) % 1));
-    } else if (itemCount % 2 == 1) {
+    if (productCount % 2 == 0 && productCount >= 12) {
+      threeSpots += (2 * (productCount / 12 - (productCount / 12) % 1));
+    } else if (productCount % 2 == 1) {
       threeSpots++;
-      if (itemCount >= 19) {
-        threeSpots += (2 * (itemCount / 19 - (itemCount / 12) % 1));
+      if (productCount >= 19) {
+        threeSpots += (2 * (productCount / 19 - (productCount / 12) % 1));
       }
     }
-    double spacing = ((itemCount - (threeSpots * 3)) / 2) / (threeSpots + 1);
+    double spacing = ((productCount - (threeSpots * 3)) / 2) / (threeSpots + 1);
     spacing -= spacing % 1;
 
-    while (itemIndex < itemCount) {
-      if ((itemCount == 3 || itemIndex + 3 <= itemCount) &&
+    while (productIndex < productCount) {
+      if ((productCount == 3 || productIndex + 3 <= productCount) &&
           threeSpots > 0 &&
           (Random().nextBool() || currentThreeSpots >= spacing + 1) &&
           (currentThreeSpots >= spacing || firstThreeSpots) &&
-          items[itemIndex].name.length < 20 &&
-          items[itemIndex + 1].name.length < 19 &&
-          items[itemIndex + 2].name.length < 19) {
+          products[productIndex].name.length < 20 &&
+          products[productIndex + 1].name.length < 19 &&
+          products[productIndex + 2].name.length < 19) {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayThreeSpots(items: items.sublist(itemIndex, itemIndex + 3)),
+            child: DisplayThreeSpots(products: products.sublist(productIndex, productIndex + 3)),
           ),
         );
-        itemIndex += 3;
+        productIndex += 3;
         threeSpots--;
         currentThreeSpots = 0;
         firstThreeSpots = false;
-      } else if (itemIndex + 2 <= itemCount) {
+      } else if (productIndex + 2 <= productCount) {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayTwoSpots(items: items.sublist(itemIndex, itemIndex + 2)),
+            child: DisplayTwoSpots(products: products.sublist(productIndex, productIndex + 2)),
           ),
         );
-        itemIndex += 2;
+        productIndex += 2;
         currentThreeSpots++;
       } else {
         widgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.5),
-            child: DisplayTwoSpots(items: items.sublist(itemIndex, itemIndex + 1)),
+            child: DisplayTwoSpots(products: products.sublist(productIndex, productIndex + 1)),
           ),
         );
-        itemIndex++;
+        productIndex++;
         currentThreeSpots++;
       }
     }
     return widgets;
   }
 
-
-  List<Widget> _itemList = [];
+  List<Widget> _productList = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFFFF),
       body: ValueListenableBuilder<ConnectionState>(
-        valueListenable: _itemService.loadingState,
+        valueListenable: _productService.loadingState,
         builder: (context, loadingState, _) {
           if (loadingState == ConnectionState.done) {
-            if (_itemList.isEmpty) _itemList = _buildItemList(_catalogItems);
+            if (_productList.isEmpty) _productList = _buildProductList(_catalogProducts);
             return Column(
               children: [
                 Container(
@@ -144,17 +148,17 @@ class CatalogState extends State<Catalog> {
                   child: SingleChildScrollView(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 13),
-                      child: Column(children: _itemList),
+                      child: Column(children: _productList),
                     ),
                   ),
                 ),
               ],
             );
           } else if (loadingState == ConnectionState.waiting) {
-            _itemList = [];
+            _productList = [];
             return const Center(child: CircularProgressIndicator(color: Color(0xFF000000)));
           }
-          _itemList = [];
+          _productList = [];
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:store/screens/product.dart';
+import 'package:store/screens/details.dart';
 import 'package:store/widgets/product_image.dart';
 
-import '../models/item.dart';
+import '../models/product.dart';
 
 class DisplayTwoSpots extends StatelessWidget {
-  final List<Item> items;
+  final List<Product> products;
 
-  const DisplayTwoSpots({super.key, required this.items});
+  const DisplayTwoSpots({super.key, required this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -17,11 +17,11 @@ class DisplayTwoSpots extends StatelessWidget {
           aspectRatio: 1.79 / 1,
           child: Row(
             children: [
-              Expanded(flex: 1, child: _buildPanel(context, items[0])),
+              Expanded(flex: 1, child: _buildPanel(context, products[0])),
               SizedBox(width: 11),
               Expanded(
                 flex: 1,
-                child: items.length >= 2 ? _buildPanel(context, items[1]) : Container(),
+                child: products.length >= 2 ? _buildPanel(context, products[1]) : Container(),
               ),
             ],
           ),
@@ -30,10 +30,10 @@ class DisplayTwoSpots extends StatelessWidget {
     );
   }
 
-  Widget _buildPanel(BuildContext context, Item item) {
+  Widget _buildPanel(BuildContext context, Product product) {
     return GestureDetector(
       onTap: () {
-        ProductState.showProduct(context, item);
+        DetailsState.showProduct(context, product);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -50,7 +50,7 @@ class DisplayTwoSpots extends StatelessWidget {
                 aspectRatio: 83 / 67,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: ProductImage(item.id, null, null, BoxFit.fitWidth),
+                  child: ProductImage(product.id, null, null, BoxFit.fitWidth),
                 ),
               ),
               SizedBox(height: 6),
@@ -60,7 +60,7 @@ class DisplayTwoSpots extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.name,
+                      product.name,
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 14,
@@ -70,7 +70,7 @@ class DisplayTwoSpots extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      item.brand,
+                      product.brand,
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 12,
@@ -83,7 +83,7 @@ class DisplayTwoSpots extends StatelessWidget {
                 ),
               ),
               Text(
-                "\$${item.price.toStringAsFixed(2)}",
+                "\$${product.price.toStringAsFixed(2)}",
                 style: const TextStyle(
                   fontFamily: 'Outfit',
                   fontSize: 14,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:store/services/item_service.dart';
+import 'package:store/services/products_service.dart';
 import 'package:store/widgets/menu_button.dart';
 
 import '../screens/catalog.dart';
@@ -90,17 +90,17 @@ class CategoriesMenuState extends State<CategoriesMenu> with SingleTickerProvide
                       weight: FontWeight.w500,
                       onPressed: () {
                         controller.reverse();
-                        //CatalogState.changeContent(null, 'for_you');
+                        catalogState.showForYouProducts();
                       },
                     ),
-                    ...ItemService.categories.map(
+                    ...ProductService.categories.map(
                       (category) => MenuButton(
                         text: category.category,
                         size: 18,
                         weight: FontWeight.w400,
                         onPressed: () {
                           controller.reverse();
-                          catalogState.showCategoryItems(category.id);
+                          catalogState.showCategoryProducts(category.id);
                         },
                       ),
                     ),

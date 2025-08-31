@@ -111,7 +111,9 @@ app.get('/product/:id', async (req, res) => {
             LEFT JOIN dimensions d ON p.id = d.product_id
             WHERE p.id IN (${placeholders})
         `, id);
+      
     res.json(mapProduct(result));
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -136,8 +138,9 @@ app.get('/product/:id/image', async (req, res) => {
       'Expires': '0',
       'Last-Modified': new Date().toUTCString()
     });
-
+    
     res.sendFile(path.resolve(filePath));
+    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -153,6 +156,7 @@ app.get('/category/:id', async (req, res) => {
   if (categoryExists.length === 0) {
     return res.status(404).json({ error: "Category not found" });
   }
+
   try {
     const [result] = await db.query(`
             SELECT p.id, c.category, p.name, p.brand, d.width, d.height, d.length, p.materials, p.fit, p.color, p.price 
@@ -163,10 +167,10 @@ app.get('/category/:id', async (req, res) => {
         `, [category_id]);
 
     res.json(mapProduct(result));
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
-
   }
 });
 
@@ -174,6 +178,7 @@ app.get('/search', async (req, res) => {
   const q = req.query.q;
   console.log('Search query:', q);
   if (!q) return res.json([]);
+
   try {
     const value = `%${q}%`;
     const [result] = await db.query(`
@@ -189,17 +194,17 @@ app.get('/search', async (req, res) => {
               p.fit       LIKE ? OR
               c.category  LIKE ?
         `, [value, value, value, value, value, value]);
+
     res.json(mapProduct(result));
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
-
   }
 });
 
 app.get('/product/:id/similar', async (req, res) => {
   const productId = req.params.id;
-
   if (!productId) {
     return res.status(400).json({ error: "Parameter 'id' is required" });
   }
@@ -246,12 +251,8 @@ app.get('/product/:id/similar', async (req, res) => {
       `%${product.materials}%`,
       productId
     ]);
-    
-    //console.log(mapProduct(result.slice(0, 3)));
-    setTimeout(() => {
-      res.json(mapProduct(similarProducts));
-    }, 5000);
-    //res.json(mapProduct(similarProducts););
+
+    res.json(mapProduct(similarProducts));
 
   } catch (error) {
     console.error('Error finding similar products:', error);
@@ -269,8 +270,6 @@ app.post('/recommendations/preview', async (req, res) => {
       itemClicks = {}
     } = req.body;
 
-
-
     console.log('Preview recommendations request:', {
       categoryVisits,
       colorPreferences,
@@ -279,7 +278,6 @@ app.post('/recommendations/preview', async (req, res) => {
       itemClicks
     });
 
-    // Przygotuj warunki SQL na podstawie preferencji
     const buildPreferenceConditions = () => {
       const conditions = [];
       const params = [];
@@ -328,26 +326,25 @@ app.post('/recommendations/preview', async (req, res) => {
     let queryParams;
 
     if (conditions.length > 0) {
-      // Pobierz tylko produkty spełniające preferencje
       query = `
         SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
                p.fit, p.color, p.price, d.width, d.height, d.length,
                (
                  ${categoryVisits && Object.keys(categoryVisits).length > 0 ?
           `CASE WHEN c.category IN (${Object.keys(categoryVisits).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(categoryVisits))} * 5 ELSE 0 END +` : '0 +'
+                    THEN ${Math.max(...Object.values(categoryVisits))} * 4 ELSE 0 END +` : '0 +'
         }
                  ${colorPreferences && Object.keys(colorPreferences).length > 0 ?
           `CASE WHEN p.color IN (${Object.keys(colorPreferences).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(colorPreferences))} * 3 ELSE 0 END +` : '0 +'
+                    THEN ${Math.max(...Object.values(colorPreferences))} * 2 ELSE 0 END +` : '0 +'
         }
                  ${fitPreferences && Object.keys(fitPreferences).length > 0 ?
           `CASE WHEN p.fit IN (${Object.keys(fitPreferences).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(fitPreferences))} * 2 ELSE 0 END +` : '0 +'
+                    THEN ${Math.max(...Object.values(fitPreferences))} ELSE 0 END +` : '0 +'
         }
                  ${itemClicks && Object.keys(itemClicks).length > 0 ?
           `CASE WHEN p.id IN (${Object.keys(itemClicks).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(itemClicks))} * 4 ELSE 0 END +` : '0 +'
+                    THEN ${Math.max(...Object.values(itemClicks))} * 3 ELSE 0 END +` : '0 +'
         }
                  0
                ) as score
@@ -367,7 +364,6 @@ app.post('/recommendations/preview', async (req, res) => {
         ...params
       ];
     } else {
-      // Jeśli brak preferencji, pobierz losowe produkty z krótkimi nazwami
       query = `
         SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
                p.fit, p.color, p.price, d.width, d.height, d.length
@@ -383,9 +379,8 @@ app.post('/recommendations/preview', async (req, res) => {
 
     const [products] = await db.query(query, queryParams);
 
-    // Znajdź 3 produkty spełniające warunki długości nazw
     const result = [];
-    const maxLengths = [19, 18, 18]; // Maksymalne długości dla pozycji 0, 1, 2
+    const maxLengths = [19, 18, 18];
 
     for (let i = 0; i < 3; i++) {
       const maxLength = maxLengths[i];
@@ -399,7 +394,6 @@ app.post('/recommendations/preview', async (req, res) => {
       }
     }
 
-    // Jeśli nie ma wystarczająco produktów, pobierz dodatkowe z krótkimi nazwami
     if (result.length < 3) {
       const usedIds = result.map(p => p.id);
       const [additionalProducts] = await db.query(`
@@ -408,7 +402,7 @@ app.post('/recommendations/preview', async (req, res) => {
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
         LEFT JOIN dimensions d ON p.id = d.product_id
-        WHERE CHAR_LENGTH(p.name) <= 18 
+        WHERE CHAR_LENGTH(p.name) <= 19 
         AND p.id NOT IN (${usedIds.length > 0 ? usedIds.map(() => '?').join(',') : '0'})
         ORDER BY RAND()
         LIMIT ?
@@ -416,96 +410,89 @@ app.post('/recommendations/preview', async (req, res) => {
 
       result.push(...additionalProducts);
     }
-
+    
     res.json(mapProduct(result.slice(0, 3)));
+
   } catch (error) {
     console.error('Error generating preview recommendations:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-// Endpoint dla pełnych rekomendacji - minimum 11 produktów
-app.post('/recommendations/full', async (req, res) => {
+app.post('/recommendations', async (req, res) => {
   try {
     const {
       categoryVisits = {},
       colorPreferences = {},
       materialPreferences = {},
       fitPreferences = {},
-      itemClicks = {},
-      limit = 20
+      itemClicks = {}
     } = req.body;
 
-    // Funkcja budowania warunków preferencji
     const buildPreferenceQuery = () => {
       const conditions = [];
       const scoreConditions = [];
       const params = [];
 
-      // Kategorie
       const categories = Object.keys(categoryVisits);
       if (categories.length > 0) {
         const placeholders = categories.map(() => '?').join(',');
         conditions.push(`c.category IN (${placeholders})`);
 
         const categoryScores = categories.map(cat =>
-          `CASE WHEN c.category = ? THEN ${categoryVisits[cat]} * 5 ELSE 0 END`
+          `CASE WHEN c.category = ? THEN ${categoryVisits[cat]} * 4 ELSE 0 END`
         ).join(' + ');
         scoreConditions.push(`(${categoryScores})`);
 
         params.push(...categories, ...categories);
       }
 
-      // Kolory
       const colors = Object.keys(colorPreferences);
       if (colors.length > 0) {
         const placeholders = colors.map(() => '?').join(',');
         conditions.push(`p.color IN (${placeholders})`);
 
         const colorScores = colors.map(color =>
-          `CASE WHEN p.color = ? THEN ${colorPreferences[color]} * 3 ELSE 0 END`
+          `CASE WHEN p.color = ? THEN ${colorPreferences[color]} * 2 ELSE 0 END`
         ).join(' + ');
         scoreConditions.push(`(${colorScores})`);
 
         params.push(...colors, ...colors);
       }
 
-      // Dopasowanie
       const fits = Object.keys(fitPreferences);
       if (fits.length > 0) {
         const placeholders = fits.map(() => '?').join(',');
         conditions.push(`p.fit IN (${placeholders})`);
 
         const fitScores = fits.map(fit =>
-          `CASE WHEN p.fit = ? THEN ${fitPreferences[fit]} * 2 ELSE 0 END`
+          `CASE WHEN p.fit = ? THEN ${fitPreferences[fit]} ELSE 0 END`
         ).join(' + ');
         scoreConditions.push(`(${fitScores})`);
 
         params.push(...fits, ...fits);
       }
 
-      // Materiały
       const materials = Object.keys(materialPreferences);
       if (materials.length > 0) {
         const materialConditions = materials.map(() => 'p.materials LIKE ?').join(' OR ');
         conditions.push(`(${materialConditions})`);
 
         const materialScores = materials.map(material =>
-          `CASE WHEN p.materials LIKE ? THEN ${materialPreferences[material]} * 2 ELSE 0 END`
+          `CASE WHEN p.materials LIKE ? THEN ${materialPreferences[material]} ELSE 0 END`
         ).join(' + ');
         scoreConditions.push(`(${materialScores})`);
 
         params.push(...materials.map(m => `%${m}%`), ...materials.map(m => `%${m}%`));
       }
 
-      // Kliknięte produkty
       const clickedItems = Object.keys(itemClicks);
       if (clickedItems.length > 0) {
         const placeholders = clickedItems.map(() => '?').join(',');
         conditions.push(`p.id IN (${placeholders})`);
 
         const clickScores = clickedItems.map(id =>
-          `CASE WHEN p.id = ? THEN ${itemClicks[id]} * 4 ELSE 0 END`
+          `CASE WHEN p.id = ? THEN ${itemClicks[id]} * 3 ELSE 0 END`
         ).join(' + ');
         scoreConditions.push(`(${clickScores})`);
 
@@ -530,7 +517,6 @@ app.post('/recommendations/full', async (req, res) => {
     if (hasPreferences) {
       const { conditions, scoreQuery, params } = buildPreferenceQuery();
 
-      // Pobierz produkty spełniające preferencje z obliczonym wynikiem
       const [products] = await db.query(`
         SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
                p.fit, p.color, p.price, d.width, d.height, d.length,
@@ -541,13 +527,11 @@ app.post('/recommendations/full', async (req, res) => {
         WHERE ${conditions}
         HAVING score > 0
         ORDER BY score DESC
-        LIMIT ?
-      `, [...params, limit]);
+      `, [...params]);
 
       recommendedProducts = products;
     }
 
-    // Jeśli mniej niż 11 produktów, dodaj losowe
     if (recommendedProducts.length < 11) {
       const usedIds = recommendedProducts.map(p => p.id);
       const remaining = 11 - recommendedProducts.length;
@@ -566,13 +550,12 @@ app.post('/recommendations/full', async (req, res) => {
       recommendedProducts.push(...randomProducts);
     }
 
-    // Usuń pole score z odpowiedzi
     const finalProducts = recommendedProducts.map(product => {
       const { score, ...productWithoutScore } = product;
       return productWithoutScore;
     });
 
-    res.json(mapProduct(finalProducts.slice(0, limit)));
+    res.json(mapProduct(finalProducts));
 
   } catch (error) {
     console.error('Error generating full recommendations:', error);
@@ -601,7 +584,7 @@ app.post('/products', upload.single('image'), async (req, res) => {
                 VALUES (?, ?, ?, ?)
             `, [id, width || 0, height || 0, length || 0]);
     }
-
+    
     await connection.commit();
 
     const [newProduct] = await connection.query(`
@@ -611,7 +594,6 @@ app.post('/products', upload.single('image'), async (req, res) => {
             LEFT JOIN dimensions d ON p.id = d.product_id
             WHERE p.id = ?
         `, [id]);
-
     res.status(201).json(newProduct[0]);
 
   } catch (error) {
@@ -633,6 +615,7 @@ app.post('/products', upload.single('image'), async (req, res) => {
 
 app.post('/categories', async (req, res) => {
   const connection = await db.getConnection();
+
   try {
     await connection.beginTransaction();
     const category = req.body;
@@ -642,10 +625,12 @@ app.post('/categories', async (req, res) => {
             VALUES (?)
         `, category.category);
     await connection.commit();
+
     const [newCategory] = await connection.query(`
             SELECT * FROM categories;
         `);
     res.status(201).json(newCategory);
+
   } catch (error) {
     await connection.rollback();
     console.error(error);

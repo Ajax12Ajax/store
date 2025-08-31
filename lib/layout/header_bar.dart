@@ -188,7 +188,7 @@ class HeaderBarState extends State<HeaderBar> with SingleTickerProviderStateMixi
                                                   ),
                                                 ),
                                                 onSubmitted: (value) {
-                                                  catalogState.showSearchQueryItems(value);
+                                                  catalogState.showSearchQueryProducts(value);
                                                 },
                                               ),
                                             ),

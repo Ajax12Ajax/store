@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:store/models/item.dart';
-import 'package:store/widgets/panel_pair_item.dart';
-import 'package:store/widgets/panel_trio_item.dart';
+import 'package:store/models/product.dart';
+import 'package:store/screens/catalog.dart';
+import 'package:store/widgets/dual_panel.dart';
+import 'package:store/widgets/triple_panel.dart';
 
-import '../../services/item_service.dart';
+import '../../services/products_service.dart';
 import '../widgets/text_button.dart';
 
 class Home extends StatefulWidget {
@@ -15,23 +16,28 @@ class Home extends StatefulWidget {
 
 bool firstBuild = true;
 
-class HomeState extends State<Home> {
-  static final ItemService itemService = ItemService();
+class HomeState extends State<Home> with RouteAware {
+  static final ProductService productService = ProductService();
+  late final CatalogState catalogState;
 
-  static late List<Item> forYouItems;
-  static late List<Item> _newArrivalItems;
+  static final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+  static late List<Product> forYouProducts;
+  static late List<Product> _newArrivalProducts;
 
   @override
   void initState() {
     super.initState();
-    print("HomeState initialized");
+    catalogState = CatalogState();
+    ProductService.onRecommendationsUpdate = () async {
+      if (!mounted) return;
+      forYouProducts = await productService.loadRecommendationsPreviewProducts();
+    };
   }
 
-  static Future loadHomeData() async {
-    print("Loading home page...");
-    forYouItems = await itemService.getRecommendationsPreview();
-    print('For You Items: ${forYouItems.map((item) => '${item.name}: ${item.price}zł').toList()}');
-    _newArrivalItems = await itemService.loadNewArrivalItems();
+  static Future loadHomePage() async {
+    forYouProducts = await productService.loadRecommendationsPreviewProducts();
+    _newArrivalProducts = await productService.loadNewArrivalProducts();
   }
 
   @override
@@ -77,7 +83,7 @@ class HomeState extends State<Home> {
                   maxWidth: 43,
                   maxHeight: 16,
                   onPressed: () {
-                    //CatalogState.changeContent(null, 'for_you');
+                    catalogState.showForYouProducts();
                   },
                 ),
               ],
@@ -85,10 +91,10 @@ class HomeState extends State<Home> {
           ),
           SizedBox(height: 14),
           ValueListenableBuilder<ConnectionState>(
-            valueListenable: itemService.loadingState,
+            valueListenable: productService.loadingState,
             builder: (context, loadingState, _) {
-              if (loadingState == ConnectionState.done && forYouItems.isNotEmpty) {
-                return DisplayThreeSpots(items: forYouItems);
+              if (loadingState == ConnectionState.done && forYouProducts.isNotEmpty) {
+                return DisplayThreeSpots(products: forYouProducts);
               } else if (loadingState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator(color: Color(0xFF000000)));
               }
@@ -231,17 +237,39 @@ class HomeState extends State<Home> {
           Column(
             children: [
               SizedBox(height: 14),
-              DisplayTwoSpots(items: _newArrivalItems.sublist(0, 2)),
+              DisplayTwoSpots(products: _newArrivalProducts.sublist(0, 2)),
               SizedBox(height: 11),
-              DisplayTwoSpots(items: _newArrivalItems.sublist(2, 4)),
+              DisplayTwoSpots(products: _newArrivalProducts.sublist(2, 4)),
               SizedBox(height: 11),
-              DisplayThreeSpots(items: _newArrivalItems.sublist(4, 7)),
+              DisplayThreeSpots(products: _newArrivalProducts.sublist(4, 7)),
               SizedBox(height: 11),
-              DisplayTwoSpots(items: _newArrivalItems.sublist(7, 9)),
+              DisplayTwoSpots(products: _newArrivalProducts.sublist(7, 9)),
             ],
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
+
+  @override
+  void didPopNext() {
+    ProductService.updateRecommendationsNow();
+  }
+
+  @override
+  void didPush() {
+    ProductService.updateRecommendationsNow();
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
   }
 }

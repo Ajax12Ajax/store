@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:store/screens/product.dart';
+import 'package:store/screens/details.dart';
 import 'package:store/widgets/product_image.dart';
 
-import '../models/item.dart';
+import '../models/product.dart';
 
 class DisplayThreeSpots extends StatelessWidget {
-  final List<Item> items;
+  final List<Product> products;
 
-  const DisplayThreeSpots({super.key, required this.items});
+  const DisplayThreeSpots({super.key, required this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -17,15 +17,15 @@ class DisplayThreeSpots extends StatelessWidget {
           aspectRatio: 1.79 / 1,
           child: Row(
             children: [
-              _buildRightPanel(context, items[0]),
+              _buildLeftPanel(context, products[0]),
               SizedBox(width: 11),
               Expanded(
                 flex: 199,
                 child: Column(
                   children: [
-                    _buildLeftPanel(context, items[1]),
+                    _buildRightPanel(context, products[1]),
                     SizedBox(height: 11),
-                    _buildLeftPanel(context, items[2]),
+                    _buildRightPanel(context, products[2]),
                   ],
                 ),
               ),
@@ -36,12 +36,12 @@ class DisplayThreeSpots extends StatelessWidget {
     );
   }
 
-  Widget _buildRightPanel(BuildContext context, Item item) {
+  Widget _buildLeftPanel(BuildContext context, Product product) {
     return Expanded(
       flex: 157,
       child: GestureDetector(
         onTap: () {
-          ProductState.showProduct(context, item);
+          DetailsState.showProduct(context, product);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -58,7 +58,7 @@ class DisplayThreeSpots extends StatelessWidget {
                   aspectRatio: 145 / 134,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: ProductImage(item.id, 134, 145, BoxFit.cover),
+                    child: ProductImage(product.id, 145, 134, BoxFit.cover),
                   ),
                 ),
                 SizedBox(height: 6),
@@ -68,7 +68,7 @@ class DisplayThreeSpots extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        item.name,
+                        product.name,
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 14,
@@ -78,7 +78,7 @@ class DisplayThreeSpots extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        item.brand,
+                        product.brand,
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 12,
@@ -91,7 +91,7 @@ class DisplayThreeSpots extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "\$${item.price.toStringAsFixed(2)}",
+                  "\$${product.price.toStringAsFixed(2)}",
                   style: const TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 14,
@@ -107,12 +107,12 @@ class DisplayThreeSpots extends StatelessWidget {
     );
   }
 
-  Widget _buildLeftPanel(BuildContext context, Item item) {
+  Widget _buildRightPanel(BuildContext context, Product product) {
     return Expanded(
       flex: 1,
       child: GestureDetector(
         onTap: () {
-          ProductState.showProduct(context, item);
+          DetailsState.showProduct(context, product);
         },
         child: Container(
           decoration: BoxDecoration(
@@ -125,9 +125,12 @@ class DisplayThreeSpots extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: ProductImage(item.id, null, null, BoxFit.cover),
+                AspectRatio(
+                  aspectRatio: 81 / 85,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: ProductImage(product.id, 81, 85, BoxFit.cover),
+                  ),
                 ),
                 SizedBox(width: 6),
                 Expanded(
@@ -142,7 +145,7 @@ class DisplayThreeSpots extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              item.name,
+                              product.name,
                               style: const TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 14,
@@ -152,7 +155,7 @@ class DisplayThreeSpots extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              item.brand,
+                              product.brand,
                               style: const TextStyle(
                                 fontFamily: 'Outfit',
                                 fontSize: 12,
@@ -164,7 +167,7 @@ class DisplayThreeSpots extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          "\$${item.price.toStringAsFixed(2)}",
+                          "\$${product.price.toStringAsFixed(2)}",
                           style: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 14,

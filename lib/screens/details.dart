@@ -1,38 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:store/layout/cart.dart';
-import 'package:store/models/item.dart';
-import 'package:store/services/item_service.dart';
+import 'package:store/services/products_service.dart';
 import 'package:store/widgets/icon_button.dart';
-import 'package:store/widgets/panel_pair_item.dart';
+import 'package:store/widgets/dual_panel.dart';
 import 'package:store/widgets/product_image.dart';
 
-class Product extends StatefulWidget {
-  final Item item;
+import '../models/product.dart';
 
-  const Product({super.key, required this.item});
+class Details extends StatefulWidget {
+  final Product product;
+
+  const Details({super.key, required this.product});
 
   @override
-  State<Product> createState() => ProductState();
+  State<Details> createState() => DetailsState();
 }
 
-class ProductState extends State<Product> {
-  late final ItemService itemService;
-  List<Item> _similarItems = [];
+class DetailsState extends State<Details> {
+  late final ProductService productService;
+  List<Product> _similarProducts = [];
 
   @override
   void initState() {
     super.initState();
-    itemService = ItemService();
-    loadSimilarItems();
-    ItemService.trackItemClick(widget.item);
+    productService = ProductService();
+    loadSimilarProducts();
+    ProductService.trackProductClick(widget.product);
   }
 
-  static void showProduct(BuildContext context, Item item) {
-    Navigator.pushNamed(context, '/product', arguments: {'item': item});
+  static void showProduct(BuildContext context, Product product) {
+    Navigator.pushNamed(context, '/product', arguments: {'product': product});
   }
 
-  Future<void> loadSimilarItems() async {
-    _similarItems = await itemService.loadSimilarItems(widget.item.id);
+  Future<void> loadSimilarProducts() async {
+    _similarProducts = await productService.loadSimilarProducts(widget.product.id);
   }
 
   @override
@@ -55,7 +56,7 @@ class ProductState extends State<Product> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
-                          widget.item.name,
+                          widget.product.name,
                           style: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 28,
@@ -66,7 +67,7 @@ class ProductState extends State<Product> {
                         ),
                         SizedBox(height: 11),
                         Text(
-                          widget.item.brand,
+                          widget.product.brand,
                           style: const TextStyle(
                             fontFamily: 'Outfit',
                             fontSize: 22,
@@ -105,7 +106,7 @@ class ProductState extends State<Product> {
                 children: [
                   AspectRatio(
                     aspectRatio: 145 / 134,
-                    child: ProductImage(widget.item.id, null, null, BoxFit.cover),
+                    child: ProductImage(widget.product.id, null, null, BoxFit.cover),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(9),
@@ -147,7 +148,7 @@ class ProductState extends State<Product> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  "\$${widget.item.price.toStringAsFixed(2)}",
+                                  "\$${widget.product.price.toStringAsFixed(2)}",
                                   style: const TextStyle(
                                     fontFamily: 'Outfit',
                                     fontSize: 32,
@@ -165,8 +166,8 @@ class ProductState extends State<Product> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    CartState.addItem(widget.item);
-                                    ItemService.trackItemClick(widget.item);
+                                    CartState.addProduct(widget.product);
+                                    ProductService.trackProductClick(widget.product);
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 6),
@@ -240,7 +241,7 @@ class ProductState extends State<Product> {
                                     padding: const EdgeInsets.all(6),
                                     child: Center(
                                       child: Text(
-                                        "Color: ${widget.item.color}",
+                                        "Color: ${widget.product.color}",
                                         style: const TextStyle(
                                           fontFamily: 'Outfit',
                                           fontSize: 22,
@@ -263,13 +264,13 @@ class ProductState extends State<Product> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     width: double.infinity,
                     child: Text(
-                      "Category: ${widget.item.category}\n"
-                      "Material: ${widget.item.materials}\n"
-                      "Fit: ${widget.item.fit}\n"
-                      "Width : ${widget.item.dimensions.width} cm\n"
-                      "Height: ${widget.item.dimensions.height} cm\n"
-                      "Length: ${widget.item.dimensions.length} cm\n"
-                      "ID: ${widget.item.id}",
+                      "Category: ${widget.product.category}\n"
+                      "Material: ${widget.product.materials}\n"
+                      "Fit: ${widget.product.fit}\n"
+                      "Width : ${widget.product.dimensions.width} cm\n"
+                      "Height: ${widget.product.dimensions.height} cm\n"
+                      "Length: ${widget.product.dimensions.length} cm\n"
+                      "ID: ${widget.product.id}",
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 22,
@@ -299,10 +300,10 @@ class ProductState extends State<Product> {
                         ),
                         SizedBox(height: 10),
                         ValueListenableBuilder<ConnectionState>(
-                          valueListenable: itemService.loadingState,
+                          valueListenable: productService.loadingState,
                           builder: (context, loadingState, _) {
-                            if (loadingState == ConnectionState.done && _similarItems.isNotEmpty) {
-                              return DisplayTwoSpots(items: _similarItems);
+                            if (loadingState == ConnectionState.done && _similarProducts.isNotEmpty) {
+                              return DisplayTwoSpots(products: _similarProducts);
                             } else if (loadingState == ConnectionState.waiting) {
                               return const Center(
                                 child: CircularProgressIndicator(color: Color(0xFF000000)),

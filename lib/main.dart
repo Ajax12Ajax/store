@@ -6,7 +6,7 @@ import 'package:store/layout/header_bar.dart';
 import 'package:store/screens/catalog.dart';
 import 'package:store/screens/home.dart';
 import 'package:store/screens/loading.dart';
-import 'package:store/screens/product.dart';
+import 'package:store/screens/details.dart';
 import 'package:store/widgets/exit_overlay.dart';
 import 'package:store/widgets/floating_action_buttons.dart';
 
@@ -56,12 +56,13 @@ class MyAppState extends State<MyApp> {
             MaterialApp(
               debugShowCheckedModeBanner: false,
               navigatorKey: navigatorKey,
+              navigatorObservers: [HomeState.routeObserver],
               initialRoute: '/',
               routes: {
                 '/': (context) => Home(),
                 '/product': (context) {
                   final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-                  return Product(item: args['item']);
+                  return Details(product: args['product']);
                 },
                 '/catalog': (context) => Catalog(),
               },

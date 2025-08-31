@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:store/layout/cart.dart';
-import 'package:store/models/list_item.dart';
+import 'package:store/models/list_product.dart';
 import 'package:store/widgets/icon_button.dart';
+import 'package:store/widgets/product_image.dart';
 
 class ListElement extends StatefulWidget {
-  final ListItem listItem;
+  final ListProduct listProduct;
 
-  const ListElement({super.key, required this.listItem});
+  const ListElement({super.key, required this.listProduct});
 
   @override
   ListElementState createState() => ListElementState();
@@ -23,18 +24,14 @@ class ListElementState extends State<ListElement> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Center(child: Icon(Icons.broken_image, size: 50)),
-            /*
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image(
-                image: AssetImage(widget.listItem.item.image),
-                fit: BoxFit.cover,
-                height: 56,
+              child: SizedBox(
                 width: 56,
+                height: 56,
+                child: ProductImage(widget.listProduct.product.id, 56, 56, BoxFit.cover),
               ),
             ),
-             */
             SizedBox(width: 9),
             Container(
               height: 53,
@@ -48,7 +45,7 @@ class ListElementState extends State<ListElement> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.listItem.item.name,
+                        widget.listProduct.product.name,
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 14,
@@ -58,7 +55,7 @@ class ListElementState extends State<ListElement> {
                         ),
                       ),
                       Text(
-                        widget.listItem.item.brand,
+                        widget.listProduct.product.brand,
                         style: const TextStyle(
                           fontFamily: 'Outfit',
                           fontSize: 12,
@@ -70,7 +67,7 @@ class ListElementState extends State<ListElement> {
                     ],
                   ),
                   Text(
-                    '\$${widget.listItem.item.price.toStringAsFixed(2)}',
+                    '\$${widget.listProduct.product.price.toStringAsFixed(2)}',
                     style: const TextStyle(
                       fontFamily: 'Outfit',
                       fontSize: 14,
@@ -109,15 +106,15 @@ class ListElementState extends State<ListElement> {
                       maxHeight: 20,
                       onPressed: () {
                         setState(() {
-                          if (widget.listItem.quantity > 1) {
-                            widget.listItem.quantity--;
-                            CartState.items.value = List.from(CartState.items.value);
+                          if (widget.listProduct.quantity > 1) {
+                            widget.listProduct.quantity--;
+                            CartState.products.value = List.from(CartState.products.value);
                           }
                         });
                       },
                     ),
                     Text(
-                      widget.listItem.quantity.toString(),
+                      widget.listProduct.quantity.toString(),
                       style: const TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 14,
@@ -134,12 +131,13 @@ class ListElementState extends State<ListElement> {
                       maxHeight: 20,
                       onPressed: () {
                         setState(() {
-                          widget.listItem.quantity++;
-                          CartState.items.value = List.from(CartState.items.value);
+                          if (widget.listProduct.quantity < 99) {
+                            widget.listProduct.quantity++;
+                            CartState.products.value = List.from(CartState.products.value);
+                          }
                         });
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -152,7 +150,8 @@ class ListElementState extends State<ListElement> {
               maxWidth: 24,
               maxHeight: 38,
               onPressed: () {
-                CartState.items.value = List.from(CartState.items.value)..remove(widget.listItem);
+                CartState.products.value = List.from(CartState.products.value)
+                  ..remove(widget.listProduct);
               },
             ),
           ],

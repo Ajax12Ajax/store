@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:store/main.dart';
 import 'package:store/screens/home.dart';
-import 'package:store/services/item_service.dart';
+import 'package:store/services/products_service.dart';
 import 'package:store/widgets/loading_animation.dart';
 
 class Loading extends StatefulWidget {
@@ -21,8 +21,8 @@ class _LoadingState extends State<Loading> {
   }
 
   Future<void> _initializeApp() async {
-    await ItemService.loadCategories();
-    await HomeState.loadHomeData();
+    await ProductService.loadCategories();
+    await HomeState.loadHomePage();
     await Future.delayed(const Duration(milliseconds: 1500));
   }
 
@@ -33,7 +33,10 @@ class _LoadingState extends State<Loading> {
       home: FutureBuilder(
         future: _initFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              HomeState.productService.loadingState.value == ConnectionState.done) {
+            return const MyApp();
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
               backgroundColor: const Color(0xFFFFFFFF),
               body: Center(child: LoadingAnimation()),
@@ -46,7 +49,22 @@ class _LoadingState extends State<Loading> {
               ),
             );
           }
-          return const MyApp();
+          return Scaffold(
+            backgroundColor: const Color(0xFFFFFFFF),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 48, color: Color(0xFF000000)),
+                  SizedBox(height: 16),
+                  Text(
+                    'Failed to load products',
+                    style: TextStyle(fontFamily: 'Outfit', fontSize: 16, color: Color(0xFF000000)),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );

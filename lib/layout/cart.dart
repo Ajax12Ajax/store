@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:store/models/list_item.dart';
+import 'package:store/models/list_product.dart';
 
-import '../models/item.dart';
+import '../models/product.dart';
 import '../widgets/icon_button.dart';
 import '../widgets/list_element.dart';
 
@@ -13,20 +13,20 @@ class Cart extends StatefulWidget {
 }
 
 class CartState extends State<Cart> with SingleTickerProviderStateMixin {
-  static final ValueNotifier<List<ListItem>> items = ValueNotifier<List<ListItem>>([]);
+  static final ValueNotifier<List<ListProduct>> products = ValueNotifier<List<ListProduct>>([]);
 
-  static void addItem(Item item) {
-    ListItem listItem = ListItem(item: item, quantity: 1);
-    if (items.value.any((element) => element.item.id == item.id)) {
-      final existingItem = items.value.firstWhere((element) => element.item.id == item.id);
-      existingItem.quantity++;
+  static void addProduct(Product product) {
+    ListProduct listProduct = ListProduct(product: product, quantity: 1);
+    if (products.value.any((element) => element.product.id == product.id)) {
+      final existingProduct = products.value.firstWhere((element) => element.product.id == product.id);
+      existingProduct.quantity++;
     } else {
-      items.value = List.from(items.value)..add(listItem);
+      products.value = List.from(products.value)..add(listProduct);
     }
   }
 
   double _calculateTotalPrice() =>
-      items.value.fold(0, (total, item) => total + item.item.price * item.quantity);
+      products.value.fold(0, (total, product) => total + product.product.price * product.quantity);
 
   static late AnimationController controller;
   late Animation<double> _heightAnimation;
@@ -115,19 +115,19 @@ class CartState extends State<Cart> with SingleTickerProviderStateMixin {
                     borderRadius: BorderRadius.circular(8),
                     child: SizedBox(
                       height: 169,
-                      child: ValueListenableBuilder<List<ListItem>>(
-                        valueListenable: items,
-                        builder: (context, item, child) {
+                      child: ValueListenableBuilder<List<ListProduct>>(
+                        valueListenable: products,
+                        builder: (context, product, child) {
                           return SingleChildScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                ...items.value.map(
-                                  (item) => Column(
+                                ...products.value.map(
+                                  (product) => Column(
                                     children: [
-                                      ListElement(listItem: item),
-                                      if (item != items.value.last) SizedBox(height: 10),
+                                      ListElement(listProduct: product),
+                                      if (product != products.value.last) SizedBox(height: 10),
                                     ],
                                   ),
                                 ),
@@ -144,9 +144,9 @@ class CartState extends State<Cart> with SingleTickerProviderStateMixin {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ValueListenableBuilder<List<ListItem>>(
-                    valueListenable: items,
-                    builder: (context, item, child) {
+                  ValueListenableBuilder<List<ListProduct>>(
+                    valueListenable: products,
+                    builder: (context, product, child) {
                       return Text(
                         "Total: \$${_calculateTotalPrice().toStringAsFixed(2)}",
                         style: const TextStyle(
