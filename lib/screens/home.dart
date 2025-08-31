@@ -25,19 +25,16 @@ class HomeState extends State<Home> with RouteAware {
   static late List<Product> forYouProducts;
   static late List<Product> _newArrivalProducts;
 
-  @override
-  void initState() {
-    super.initState();
-    catalogState = CatalogState();
-    ProductService.onRecommendationsUpdate = () async {
-      if (!mounted) return;
-      forYouProducts = await productService.loadRecommendationsPreviewProducts();
-    };
-  }
 
   static Future loadHomePage() async {
     forYouProducts = await productService.loadRecommendationsPreviewProducts();
     _newArrivalProducts = await productService.loadNewArrivalProducts();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    catalogState = CatalogState();
   }
 
   @override
@@ -254,6 +251,9 @@ class HomeState extends State<Home> with RouteAware {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    ProductService.onRecommendationsUpdate = () async {
+      forYouProducts = await productService.loadRecommendationsPreviewProducts();
+    };
     routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
   }
 
@@ -269,6 +269,7 @@ class HomeState extends State<Home> with RouteAware {
 
   @override
   void dispose() {
+    ProductService.onRecommendationsUpdate = null;
     routeObserver.unsubscribe(this);
     super.dispose();
   }
