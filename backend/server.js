@@ -111,7 +111,7 @@ app.get('/product/:id', async (req, res) => {
             LEFT JOIN dimensions d ON p.id = d.product_id
             WHERE p.id IN (${placeholders})
         `, id);
-      
+
     res.json(mapProduct(result));
 
   } catch (error) {
@@ -138,9 +138,9 @@ app.get('/product/:id/image', async (req, res) => {
       'Expires': '0',
       'Last-Modified': new Date().toUTCString()
     });
-    
+
     res.sendFile(path.resolve(filePath));
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Server error' });
@@ -176,7 +176,6 @@ app.get('/category/:id', async (req, res) => {
 
 app.get('/search', async (req, res) => {
   const q = req.query.q;
-  console.log('Search query:', q);
   if (!q) return res.json([]);
 
   try {
@@ -260,167 +259,9 @@ app.get('/product/:id/similar', async (req, res) => {
   }
 });
 
-app.post('/recommendations/preview', async (req, res) => {
+app.post(['/recommendations', '/recommendations/preview'], async (req, res) => {
   try {
-    const {
-      categoryVisits = {},
-      colorPreferences = {},
-      materialPreferences = {},
-      fitPreferences = {},
-      itemClicks = {}
-    } = req.body;
-
-    console.log('Preview recommendations request:', {
-      categoryVisits,
-      colorPreferences,
-      materialPreferences,
-      fitPreferences,
-      itemClicks
-    });
-
-    const buildPreferenceConditions = () => {
-      const conditions = [];
-      const params = [];
-
-      const categories = Object.keys(categoryVisits);
-      if (categories.length > 0) {
-        const placeholders = categories.map(() => '?').join(',');
-        conditions.push(`c.category IN (${placeholders})`);
-        params.push(...categories);
-      }
-
-      const colors = Object.keys(colorPreferences);
-      if (colors.length > 0) {
-        const placeholders = colors.map(() => '?').join(',');
-        conditions.push(`p.color IN (${placeholders})`);
-        params.push(...colors);
-      }
-
-      const fits = Object.keys(fitPreferences);
-      if (fits.length > 0) {
-        const placeholders = fits.map(() => '?').join(',');
-        conditions.push(`p.fit IN (${placeholders})`);
-        params.push(...fits);
-      }
-
-      const materials = Object.keys(materialPreferences);
-      if (materials.length > 0) {
-        const materialConditions = materials.map(() => 'p.materials LIKE ?').join(' OR ');
-        conditions.push(`(${materialConditions})`);
-        params.push(...materials.map(m => `%${m}%`));
-      }
-
-      const clickedItems = Object.keys(itemClicks).map(Number);
-      if (clickedItems.length > 0) {
-        const placeholders = clickedItems.map(() => '?').join(',');
-        conditions.push(`p.id IN (${placeholders})`);
-        params.push(...clickedItems);
-      }
-
-      return { conditions, params };
-    };
-
-    const { conditions, params } = buildPreferenceConditions();
-
-    let query;
-    let queryParams;
-
-    if (conditions.length > 0) {
-      query = `
-        SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
-               p.fit, p.color, p.price, d.width, d.height, d.length,
-               (
-                 ${categoryVisits && Object.keys(categoryVisits).length > 0 ?
-          `CASE WHEN c.category IN (${Object.keys(categoryVisits).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(categoryVisits))} * 4 ELSE 0 END +` : '0 +'
-        }
-                 ${colorPreferences && Object.keys(colorPreferences).length > 0 ?
-          `CASE WHEN p.color IN (${Object.keys(colorPreferences).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(colorPreferences))} * 2 ELSE 0 END +` : '0 +'
-        }
-                 ${fitPreferences && Object.keys(fitPreferences).length > 0 ?
-          `CASE WHEN p.fit IN (${Object.keys(fitPreferences).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(fitPreferences))} ELSE 0 END +` : '0 +'
-        }
-                 ${itemClicks && Object.keys(itemClicks).length > 0 ?
-          `CASE WHEN p.id IN (${Object.keys(itemClicks).map(() => '?').join(',')}) 
-                    THEN ${Math.max(...Object.values(itemClicks))} * 3 ELSE 0 END +` : '0 +'
-        }
-                 0
-               ) as score
-        FROM products p
-        LEFT JOIN categories c ON p.category_id = c.id
-        LEFT JOIN dimensions d ON p.id = d.product_id
-        WHERE (${conditions.join(' OR ')})
-        ORDER BY score DESC, CHAR_LENGTH(p.name) ASC
-        LIMIT 50
-      `;
-
-      queryParams = [
-        ...Object.keys(categoryVisits),
-        ...Object.keys(colorPreferences),
-        ...Object.keys(fitPreferences),
-        ...Object.keys(itemClicks),
-        ...params
-      ];
-    } else {
-      query = `
-        SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
-               p.fit, p.color, p.price, d.width, d.height, d.length
-        FROM products p
-        LEFT JOIN categories c ON p.category_id = c.id
-        LEFT JOIN dimensions d ON p.id = d.product_id
-        WHERE CHAR_LENGTH(p.name) <= 19
-        ORDER BY RAND()
-        LIMIT 10
-      `;
-      queryParams = [];
-    }
-
-    const [products] = await db.query(query, queryParams);
-
-    const result = [];
-    const maxLengths = [19, 18, 18];
-
-    for (let i = 0; i < 3; i++) {
-      const maxLength = maxLengths[i];
-      const availableProducts = products.filter(p =>
-        p.name.length <= maxLength &&
-        !result.some(r => r.id === p.id)
-      );
-
-      if (availableProducts.length > 0) {
-        result.push(availableProducts[0]);
-      }
-    }
-
-    if (result.length < 3) {
-      const usedIds = result.map(p => p.id);
-      const [additionalProducts] = await db.query(`
-        SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
-               p.fit, p.color, p.price, d.width, d.height, d.length
-        FROM products p
-        LEFT JOIN categories c ON p.category_id = c.id
-        LEFT JOIN dimensions d ON p.id = d.product_id
-        WHERE CHAR_LENGTH(p.name) <= 19 
-        AND p.id NOT IN (${usedIds.length > 0 ? usedIds.map(() => '?').join(',') : '0'})
-        ORDER BY RAND()
-        LIMIT ?
-      `, [...usedIds, 3 - result.length]);
-
-      result.push(...additionalProducts);
-    }
-    
-    res.json(mapProduct(result.slice(0, 3)));
-
-  } catch (error) {
-    console.error('Error generating preview recommendations:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-app.post('/recommendations', async (req, res) => {
-  try {
+    const isPreview = req.path.endsWith('/preview');;
     const {
       categoryVisits = {},
       colorPreferences = {},
@@ -512,7 +353,7 @@ app.post('/recommendations', async (req, res) => {
       Object.keys(fitPreferences).length > 0 ||
       Object.keys(itemClicks).length > 0;
 
-    let recommendedProducts = [];
+    let results = [];
 
     if (hasPreferences) {
       const { conditions, scoreQuery, params } = buildPreferenceQuery();
@@ -525,44 +366,46 @@ app.post('/recommendations', async (req, res) => {
         LEFT JOIN categories c ON p.category_id = c.id
         LEFT JOIN dimensions d ON p.id = d.product_id
         WHERE ${conditions}
+        ${isPreview ? 'AND CHAR_LENGTH(p.name) <= 19' : ''}
         HAVING score > 0
         ORDER BY score DESC
+        ${isPreview ? 'LIMIT 3' : ''}
       `, [...params]);
 
-      recommendedProducts = products;
+      results = products;
     }
 
-    if (recommendedProducts.length < 11) {
-      const usedIds = recommendedProducts.map(p => p.id);
-      const remaining = 11 - recommendedProducts.length;
+    const missingProducts = (isPreview ? 3 : 11) - results.length;
 
+    if (missingProducts > 0) {
+      const usedIds = results.map(p => p.id);
       const [randomProducts] = await db.query(`
         SELECT p.id, p.category_id, c.category, p.name, p.brand, p.materials, 
                p.fit, p.color, p.price, d.width, d.height, d.length
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
         LEFT JOIN dimensions d ON p.id = d.product_id
-        WHERE ${usedIds.length > 0 ? `p.id NOT IN (${usedIds.map(() => '?').join(',')})` : '1=1'}
+        WHERE p.id NOT IN (${usedIds.length > 0 ? usedIds.map(() => '?').join(',') : '0'})
+        ${isPreview ? 'AND CHAR_LENGTH(p.name) <= 19' : ''}
         ORDER BY RAND()
         LIMIT ?
-      `, [...usedIds, remaining]);
+      `, [...usedIds, missingProducts]);
 
-      recommendedProducts.push(...randomProducts);
+      results.push(...randomProducts);
     }
 
-    const finalProducts = recommendedProducts.map(product => {
+    const recommendedProducts = results.map(product => {
       const { score, ...productWithoutScore } = product;
       return productWithoutScore;
     });
 
-    res.json(mapProduct(finalProducts));
+    res.json(mapProduct(recommendedProducts));
 
   } catch (error) {
     console.error('Error generating full recommendations:', error);
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 
 app.post('/products', upload.single('image'), async (req, res) => {
@@ -584,7 +427,7 @@ app.post('/products', upload.single('image'), async (req, res) => {
                 VALUES (?, ?, ?, ?)
             `, [id, width || 0, height || 0, length || 0]);
     }
-    
+
     await connection.commit();
 
     const [newProduct] = await connection.query(`
@@ -619,7 +462,6 @@ app.post('/categories', async (req, res) => {
   try {
     await connection.beginTransaction();
     const category = req.body;
-    console.log('Adding category:', category);
     await connection.query(`
             INSERT INTO categories (category) 
             VALUES (?)

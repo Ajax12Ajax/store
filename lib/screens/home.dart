@@ -25,7 +25,6 @@ class HomeState extends State<Home> with RouteAware {
   static late List<Product> forYouProducts;
   static late List<Product> _newArrivalProducts;
 
-
   static Future loadHomePage() async {
     forYouProducts = await productService.loadRecommendationsPreviewProducts();
     _newArrivalProducts = await productService.loadNewArrivalProducts();
@@ -90,7 +89,7 @@ class HomeState extends State<Home> with RouteAware {
           ValueListenableBuilder<ConnectionState>(
             valueListenable: productService.loadingState,
             builder: (context, loadingState, _) {
-              if (loadingState == ConnectionState.done && forYouProducts.isNotEmpty) {
+              if (loadingState == ConnectionState.done && forYouProducts.length >= 3) {
                 return DisplayThreeSpots(products: forYouProducts);
               } else if (loadingState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator(color: Color(0xFF000000)));
