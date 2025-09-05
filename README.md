@@ -1,16 +1,31 @@
-# store
+# 🛒 Store  
+A **online store** built with  
+📱 **Flutter (Dart)** for the mobile application  
+⚙️ **Express.js (JavaScript)** for the backend  
+🗄️ **MySQL** for the database  
 
-Online store with map
+## ☑️ Features
+- Cross‑platform mobile app (iOS / Android)  
+- REST API powered by Express.js  
+- MySQL relational database  
+- Product search & categories  
+- Product recommendations system
+- Map with local store locations  
+- Shopping cart & product management  
 
-## Getting Started
+## ☑️ Tech Stack
+**Frontend (mobile):**
+- Flutter (Dart)  
+- Material Design + custom UI  
 
-This project is a starting point for a Flutter application.
+**Backend:**
+- Node.js + Express.js   
+- RESTful API structure  
 
-A few resources to get you started if this is your first Flutter project:
+**Database:**
+- MySQL
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🪪 Author
+👤 **Jan Stawski**  
+📧 jan.stawski@outlook.com  
+💻 GitHub: [Ajax12Ajax](https://github.com/Ajax12Ajax)
