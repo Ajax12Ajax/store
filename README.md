@@ -26,6 +26,6 @@
 - MySQL
 
 ## 🪪 Author
-👤 **Jan Stawski**  
-📧 jan.stawski@outlook.com  
-💻 GitHub: [Ajax12Ajax](https://github.com/Ajax12Ajax)
+**Jan Stawski**  
+Email: jan.stawski@outlook.com  
+GitHub: [Ajax12Ajax](https://github.com/Ajax12Ajax)
