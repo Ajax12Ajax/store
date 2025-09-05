@@ -1,5 +1,5 @@
 # 🛒 Store  
-A **online store** built with  
+**E-commerce mobile app** built with  
 📱 **Flutter (Dart)** for the mobile application  
 ⚙️ **Express.js (JavaScript)** for the backend  
 🗄️ **MySQL** for the database  
