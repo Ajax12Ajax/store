@@ -1,8 +1,8 @@
 # 🛒 Store  
 **E-commerce mobile app** built with  
-📱 **Flutter (Dart)** for the mobile application  
-⚙️ **Express.js (JavaScript)** for the backend  
-🗄️ **MySQL** for the database  
+**Flutter (Dart)** for the mobile application  
+**Express.js (JavaScript)** for the backend  
+**MySQL** for the database  
 
 ## ☑️ Features
 - Cross‑platform mobile app (iOS / Android)  
